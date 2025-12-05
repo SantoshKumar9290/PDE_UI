@@ -1,0 +1,345 @@
+@import "../colors";
+
+.singleColumn {
+    background-color: $TableBlackColor;
+    width: 33%;
+    padding: 10px;
+}
+
+.columnText {
+    font-family: 'Montserrat';
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 18px;
+    color: $black;
+    font-size: 12px;
+    line-height: 18px;
+    color: #000;
+    display: block;
+    margin: 0 0 4px 0;
+}
+
+.reqfield {
+    position: absolute;
+}
+
+.columnInputBox {
+    background: #FFFFFF;
+    border: 1px solid #AEAEAE;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+    border-radius: 3px;
+    width: 100%;
+    height: 38px;
+    padding: 0.5em;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 18px;
+    color: $black;
+
+        &:disabled {
+            background: #d9d9d9;
+            // text-transform: capitalize !important;
+        } 
+    }
+    .container {
+        position: relative;
+        .icon {
+            position: absolute !important;
+            cursor: pointer;
+            right: 0 !important;
+            top: 0 !important;
+            z-index: 1;
+        }      
+    }
+
+    .columnInputBox::placeholder {
+        text-transform: capitalize;
+    }
+
+    .columnInputLongBox {
+        background: #FFFFFF;
+        border: 1px solid #AEAEAE;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 3px;
+        width: 100%;
+        height: 65px;
+        padding: 0.5em;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 18px;
+        color: $black;
+        // text-transform: capitalize;
+
+    }
+
+    .columnInputBox::placeholder {
+        color: $placeholder;
+    }
+
+    .TableRadioButton {
+        width: 18px;
+        height: 18px;
+        border: 1px solid $dark-charcoal;
+        border-radius: 100%;
+        display: inline-block;
+        vertical-align: middle;
+        accent-color: $dark-charcoal;
+    }
+
+        .TableRadioLabel {
+            padding: 0 14px 0 5px;
+            display: inline-block;
+            vertical-align: middle;
+        font-family: 'Montserrat';
+            font-style: normal;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+
+    .ErrorText {
+        color: red;
+        vertical-align: middle;
+        padding-top: 10px;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 15px;
+        margin-left: 30px;
+    }
+
+    .datepicker {
+        height: 50px;
+        font-size: 16px;
+        color: #414D64;
+        background: #ffffff;
+        padding: 0 15px;
+        border: 2px solid #DADEEA;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        -webkit-transition: all 0.3s ease-in-out;
+        -moz-transition: all 0.3s ease-in-out;
+        -o-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
+        text-align: center;
+    }
+
+    .columnDateInputBox {
+        background: #FFFFFF;
+        border: 1px solid #AEAEAE;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 3px;
+        width: 100%;
+        height: 38px;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 18px;
+        color: $black;
+        padding: 10px;
+        padding-right: 5px;
+        display: inline-block;
+        position: relative;
+
+        &::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+        .calenderIcon{
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+    }
+    .columnDateInputBox.columnDatepicker{
+        background:url("../../public/images/calender.svg") no-repeat 98% center #fff;
+        background-size: 15px;
+    }
+    
+    .columnDropDownBox {
+        background: #FFFFFF;
+        border: 1px solid #AEAEAE;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 3px;
+        width: 100%;
+        height: 38px;
+        font-family: 'Montserrat' !important;
+        font-weight: 600;
+        font-size: 13px;
+        line-height: 18px;
+        text-transform: capitalize;
+        color: $black;
+        padding: 5px;
+        padding-right: 30px;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url('../../public/images/icon-select.svg');
+        background-repeat: no-repeat, repeat;
+        background-position: right .7em top 50%, 0 0;
+        background-size: .65em auto, 100%;
+    }
+
+    .InputDate {
+        input[type="date"] {
+            background: url('../../public/images/calender.svg') no-repeat 98% center #fff;
+            background-size: 14px;
+            width: 100%;
+            max-width: 520px;
+            display: -webkit-box;
+            height: 38px;
+            cursor: pointer;
+            position: relative;
+
+            &::-webkit-calendar-picker-indicator {
+
+                background: transparent;
+                bottom: 0;
+                color: transparent;
+                cursor: pointer;
+                height: auto;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: auto;
+                z-index: 999 !important;
+            }
+        }
+
+
+    }
+
+    //Radio Button
+    .CheckboxInfo {
+        display: inline-flex;
+        padding: 5px 12px 0 0px;
+
+        label {
+            position: relative;
+            display: block;
+            display: inline-block;
+            padding-right: 14px;
+
+        }
+
+        input [type="radio"] {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            left: 0;
+            opacity: 0;
+            z-index: 9;
+        }
+
+        input[type="radio"]+small {
+            font-family: "Montserrat";
+            font-style: normal;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 24px;
+            color: $black;
+            display: block;
+            position: relative;
+            padding: 0px 0 0 30px;
+            cursor: pointer;
+        }
+
+        input[type="radio"]+small::before {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 1px solid #AEAEAE;
+            // box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+            border-radius: 100%;
+            content: "";
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+
+        }
+
+        input[type="radio"]:checked+small::before {
+            background: url('../../public/images/radio.svg') no-repeat center center;
+            background-size: 23px;
+            border-color: transparent;
+        }
+
+        .columnInputLongBox {
+            height: 78px !important;
+        }
+
+    }
+
+    .form-select {
+        font-family: 'Montserrat' !important;
+        font-style: normal !important;
+        font-weight: 500;
+        font-size: 15px !important;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22) !important;
+        height: 45px !important;
+    }
+
+    @media (max-width: 767px) {
+
+        .columnDropDownBox,
+        .datepicker,
+        .columnDateInputBox,
+        .columnInputBox,
+        .columnInputLongBox {
+            margin-bottom: 10px;
+        }
+
+    }
+
+    .disableDiv{
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .suggestionsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #AEAEAE;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+  border-radius: 3px;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  background: #fff;
+  width: 100%;
+  z-index: 1000;
+}
+
+.suggestionsList li {
+  padding: 8px 12px;
+  font-family: 'Montserrat';
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #000;
+  cursor: pointer;
+}
+
+.suggestionsList li:hover,
+.suggestionsList li.highlighted {
+  background-color: #1976d2;
+  color: #fff;
+}

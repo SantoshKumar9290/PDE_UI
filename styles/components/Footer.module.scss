@@ -1,0 +1,39 @@
+@import "../colors";
+
+.Footermain{
+    background-color: $footerbgcolor;
+    max-width: 1440px;
+    max-width: 0 auto;
+}
+
+.footerContainer {
+    width: 100%;
+    //height: 100%;
+	background-color: $footerbgcolor;
+    //display: flex;
+    //text-align: center;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    padding: 5px 0;
+	display: block;
+	text-align: center;
+	z-index: 999;
+}
+
+.footerText {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 17px;
+    color: $NavbarTextColor;
+    margin-bottom: 0;
+}
+
+@media all and (min-width: 320px) and (max-width: 767px) {
+.mainFooterCon{
+  width: 100% !important;
+  display: grid !important;
+}
+}

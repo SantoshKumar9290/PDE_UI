@@ -1,0 +1,386 @@
+@import "../colors.scss";
+
+// .singleColumn {
+//     background-color: $TableBlackColor;
+//     width: 33%;
+//     padding: 10px;
+// }
+
+// .columnText {
+//     font-family: 'Montserrat';
+//     font-weight: 600;
+//     font-size: 15px;
+//     line-height: 18px;
+//     color: $black;
+//     font-size: 13px;
+//     line-height: 18px;
+//     color: #000;
+//     display: block;
+//     margin: 0 0 4px 0;
+// }
+
+// .reqfield {
+//     position: absolute;
+// }
+
+.columnInputBox {
+    background: #FFFFFF;
+    border: 1px solid #AEAEAE;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+    border-radius: 3px;
+    width: 100%;
+    height: 45px !important;
+    padding: 0.5em;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    font-family: "Noto Sans", sans-serif;
+    line-height: 18px;
+    color: $black;
+
+        &:disabled {
+            background: #d9d9d9 !important;
+            // text-transform: capitalize !important;
+        }
+        &::placeholder{
+            font-size: 9px !important;
+        }
+    }
+    
+
+    .container {
+        position: relative;
+        .icon {
+            position: absolute !important;
+            cursor: pointer;
+            right: 0 !important;
+            top: 0 !important;
+            z-index: 1;
+        }
+    }
+
+    .columnInputBox::placeholder {
+        text-transform: capitalize;
+    }
+
+    .columnInputLongBox {
+        background: #FFFFFF;
+        border: 1px solid #AEAEAE;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 3px;
+        width: 100%;
+        height: 150px !important;
+        padding: 0.5em;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 18px;
+        color: $black;
+        // text-transform: capitalize;
+
+    }
+
+    .columnInputBox::placeholder {
+        color: #f2f2f2;
+    }
+
+.CheckboxInfo {
+    display: inline-flex;
+    padding: 5px 12px 0 0px;
+
+    label {
+        position: relative;
+        display: block;
+        padding-right: 5px;
+        display: inline-flex;
+
+    }
+
+    input [type="radio"] {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        left: 0;
+        opacity: 0;
+        z-index: 9;
+    }
+
+    input[type="radio"]+small {
+        font-family: "Montserrat";
+        font-style: normal;
+        font-weight: 500;
+        font-size: 15px;
+        line-height: 24px;
+        color: $black;
+        display: block;
+        position: relative;
+        padding: 0px 0 0 30px;
+        cursor: pointer;
+    }
+
+    input[type="radio"]+small::before {
+        width: 24px;
+        height: 24px;
+        background: #fff;
+        border: 1px solid #AEAEAE;
+        // box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 100%;
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+
+    }
+
+    input[type="radio"]:checked+span::before {
+        // background: url('../../public/images/radio-checked.jpg') no-repeat center center;
+        background-size: 23px;
+        border-color: transparent;
+    }
+
+    .columnInputLongBox {
+        height: 78px !important;
+    }
+
+}
+
+.TableRadioButton {
+    width: 20px;
+    height: 20px;
+    border: 1px solid $dark-charcoal;
+    border-radius: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    accent-color: $dark-charcoal;
+}
+
+.TableRadioLabel {
+    padding: 0 17px 0 5px;
+    display: inline-block;
+    vertical-align: middle;
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.removeBoundary {
+    border-radius: 0px 8px 8px 0px !important;
+}
+
+//     .ErrorText {
+//         color: red;
+//         vertical-align: middle;
+//         padding-top: 10px;
+//         font-family: 'Montserrat';
+//         font-style: normal;
+//         font-weight: 500;
+//         font-size: 15px;
+//         margin-left: 30px;
+//     }
+
+//     .datepicker {
+//         height: 50px;
+//         font-size: 16px;
+//         color: #414D64;
+//         background: #ffffff;
+//         padding: 0 15px;
+//         border: 2px solid #DADEEA;
+//         -webkit-border-radius: 5px;
+//         -moz-border-radius: 5px;
+//         border-radius: 5px;
+//         -webkit-transition: all 0.3s ease-in-out;
+//         -moz-transition: all 0.3s ease-in-out;
+//         -o-transition: all 0.3s ease-in-out;
+//         transition: all 0.3s ease-in-out;
+//         text-align: center;
+//     }
+
+    .columnDateInputBox {
+        background: #FFFFFF;
+        border: 1px solid #AEAEAE;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 3px;
+        width: 100%;
+        height: 38px;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 18px;
+        color: $black;
+        padding: 10px;
+        padding-right: 5px;
+        display: inline-block;
+        position: relative;
+
+        &::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+        .calenderIcon{
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+        &:disabled {
+            background: #d9d9d9 !important;
+            // text-transform: capitalize !important;
+        }
+    }
+    .columnDateInputBox.columnDatepicker{
+        background: url('../../public/images/calender.svg') no-repeat 98% center #fff;
+        // background:url("../../../public/images/calender.svg") no-repeat 98% center #fff;
+        background-size: 15px;
+    }
+
+    .columnDropDownBox {
+        // background: #F6F9FB !important;
+        background: rgb(255,255,255,.7);
+        border: 2px solid red;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+        border-radius: 3px;
+        width: 100%;
+        height: 40px !important;
+        font-family: "Noto Sans", sans-serif;
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 18px;
+        text-transform: capitalize;
+        color: $black;
+        padding: 5px;
+        border-radius: 6px;
+        padding:0 10px !important;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url('../../public/images/icon-select.svg');
+        background-repeat: no-repeat, repeat;
+        background-position: right .7em top 50%, 0 0;
+        background-size: .65em auto, 100%;
+        border: 2px solid #6096BA;
+        &:disabled {
+            background: #d9d9d9;
+            // text-transform: capitalize !important;
+        } 
+    }
+   .removeBoundary{
+    border-radius: 8px 0px 0px 8px;
+   }
+    .InputDate {
+        input{
+            background: url('../../public/images/calender.svg') no-repeat 90% center #F6F9FB !important;
+            background-size: 14px !important;
+            width: 100%;
+            max-width: 520px;
+            display: -webkit-box;
+            height: 45px !important;
+            cursor: pointer;
+            padding-top: 12px;
+            position: relative;
+            border: 1px solid #6096BA;
+            border-radius: 6px;
+            font-family: "Noto Sans", sans-serif;
+
+            &::-webkit-calendar-picker-indicator {
+
+                background: transparent;
+                bottom: 0;
+                color: transparent;
+                cursor: pointer;
+                height: auto;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: auto;
+                z-index: 999 !important;
+            }
+            &:disabled {
+                background: #d9d9d9 !important;
+                // text-transform: capitalize !important;
+            }
+        }
+
+
+    }
+
+
+    .columnInputBox {
+        background: #FFFFFF;
+        border: 1px solid #AEAEAE;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22) !important;
+        border-radius: 3px;
+        width: 100%;
+        height: 40px !important;
+        padding:0 10px !important;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 500;
+        font-size: 13px;
+        font-family: "Noto Sans", sans-serif;
+        line-height: 18px;
+        color: $black;
+        border: 2px solid #6096BA;
+    
+            &:disabled {
+                background: #d9d9d9 !important;
+                // text-transform: capitalize !important;
+            }
+            &::placeholder{
+                font-size: 9px !important;
+            }
+        }
+        .container {
+            position: relative;
+            .icon {
+                position: absolute !important;
+                cursor: pointer;
+                right: 0 !important;
+                top: 0 !important;
+                z-index: 1;
+            }
+        }
+    
+        .columnInputBox::placeholder {
+            text-transform: capitalize;
+        }
+    
+        .columnInputLongBox {
+            background: #FFFFFF;
+            border: 1px solid #AEAEAE;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+            border-radius: 3px;
+            width: 100%;
+            height: 150px !important;
+            padding: 0.5em;
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 18px;
+            color: $black;
+            // text-transform: capitalize;
+    
+        }
+    
+        .columnInputBox::placeholder {
+            color: #f2f2f2;
+        }
+
+      
+    
+   

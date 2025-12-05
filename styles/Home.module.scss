@@ -1,0 +1,343 @@
+@import "./colors.scss";
+
+.container {
+  padding: 0;
+}
+
+
+// .Forms_RegistrationMain .Forms_RegistrationInput {
+//   margin: 1% 0% 1% 1%;
+//   max-width: 432px;
+//   overflow-y: auto;
+//   overflow-x: hidden;
+// }
+
+.Forms_RegistrationMain .Forms_RegistrationInput form {
+  overflow-y: auto;
+  overflow-x: hidden;
+  //height: calc(100vh - 260px);
+  padding: 0 10px;
+}
+
+.Forms_RegistrationMain .Forms_mainHeading,
+.Forms_RegistrationMainDetails .Forms_mainHeading {
+  font-size: 30px;
+  color: $black !important;
+}
+
+.Forms_RegistrationMain h2,
+.Forms_RegistrationMain h4,
+.Forms_RegistrationMainDetails h2,
+.Forms_RegistrationMainDetails h4 {
+  font-family: "Montserrat", sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  color: $titlecolor;
+  margin: 16px 0;
+}
+
+.Forms_RegistrationMainDetails h5 {
+  font-family: "Montserrat", sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
+  color: $titlecolor;
+  margin: 16px 0;
+}
+
+
+.ContentCardLabel {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-family: "Montserrat", sans-serif;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 700;
+  color: $NavbarTextColor;;
+  background: linear-gradient(90deg, rgb(46, 49, 146) 5%, rgb(27, 255, 255) 200%) !important;
+  height: 38px;
+  padding: 0 12px;
+}
+
+.ContentCard {
+  background: $light-grey;
+  border: 1px solid $gainsboro;
+  padding: 8px 18px;
+  border-radius: 4px;
+  .valueText {
+    display: block;
+    width: 100%;
+    font-family: "Montserrat", sans-serif;
+    font-style: normal;
+    font-size: 16px;
+    font-weight: 500;
+    color: $blacktext;
+    word-break: break-all;
+  }
+  .cardLabelAction {
+    font-weight: 500;
+    color: #0070f3;
+    margin-left: 8px;
+    text-decoration: underline;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .formCheckInput {
+    input[type="checkbox"]:not(:checked) {
+      border: 1px solid #a29a9a;
+    }
+  }
+}
+
+
+.main {
+  min-height: 100vh;
+  padding: 4rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer {
+  display: flex;
+  flex: 1;
+  padding: 2rem 0;
+  border-top: 1px solid #eaeaea;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.title a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.title a:hover,
+.title a:focus,
+.title a:active {
+  text-decoration: underline;
+}
+
+.title {
+  margin: 0;
+  line-height: 1.15;
+  font-size: 4rem;
+}
+
+.title,
+.description {
+  text-align: center;
+}
+
+.description {
+  margin: 4rem 0;
+  line-height: 1.5;
+  font-size: 1.5rem;
+}
+
+.code {
+  background: #fafafa;
+  border-radius: 5px;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
+.grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 800px;
+}
+
+.card {
+  margin: 1rem;
+  padding: 1.5rem;
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  max-width: 400px;
+}
+
+.card:hover,
+.card:focus,
+.card:active {
+  color: #0070f3;
+  border-color: #0070f3;
+}
+
+.card h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.logo {
+  height: 1em;
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    width: 100%;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .card,
+  .footer {
+    border-color: #222;
+  }
+
+  .code {
+    background: #111;
+  }
+
+  .logo img {
+    filter: invert(1);
+  }
+}
+.feviconImg{
+  object-fit: cover !important;
+}
+.modaldialog{
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  border: 1px solid #cbcbcb;
+  border-radius: 0;
+  z-index: 9999;
+  padding: 0px;
+  position: fixed;
+  background: rgba(0, 0, 0, 0.8);
+  left: 0;
+  top: 0;
+}
+
+.modalHeaderInfo{
+  background-color: $titlecolor;
+  padding: 5px 10px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.Modalclose{
+  background-color: $NavbarTextColor;
+  padding: 5px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin: 5px -7px 0 auto;
+}
+.ModalTitle{
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 17px;
+  color: $NavbarTextColor;
+}
+.succesxsodalbody{
+  text-align: center;
+  padding: 20px 0;
+  .AdharText{
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 18px;
+    color: $dark-charcoal;
+    display: block;
+    margin-bottom: 5px;
+    span{
+      display: block;
+      font-size: 13px;
+    }
+  }
+  input{
+    width: 270px;
+    height: 38px;
+    background: #E9E9E9;
+    border-radius: 3px;
+    border: none;
+    padding: 0 15px;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+  }
+}
+.adharButton{
+  width: 138px;
+  height: 40px;
+  background: $cardheadderbg;
+  border-radius: 3px;
+  border: none;
+  margin-top: 10px;
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 18px;
+  color: $NavbarTextColor;
+}
+.OtpText{
+  margin-top: 10px;
+}
+.adharRadio {
+  input{
+  width: 20px !important;
+  height: 20px !important;
+  }
+  label {
+  padding: 8px 10px 10px;
+  margin-right: 0px;
+  border-radius: 5px;
+  color: $black;
+  display: inline-block;
+  span {
+  font-weight: 600 !important;
+  font-size: 16px;
+  }
+  }
+}
+@media all and (min-width: 320px) and (max-width: 767px) {
+  .Modalclose {
+    margin: -22px -7px 0 auto;
+}
+.mainCon {
+  width: 100% !important;
+  display: grid !important;
+}
+}
+
+.aadharConsentBox {
+  overflow-y: scroll;
+  height: 20vh !important;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+}

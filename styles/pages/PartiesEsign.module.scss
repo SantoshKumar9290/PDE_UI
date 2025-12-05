@@ -1,0 +1,158 @@
+@import "../colors.scss";
+
+.container{
+    display: flex;
+    margin: 16px 48px;
+    flex-direction: column;
+    gap: 8px;
+
+    .headSection{
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row; 
+
+        .leftBlock{
+            .TitleText {
+                font-family: 'Montserrat';
+                font-style: normal;
+                font-weight: 700;
+                font-size: 16px;
+                line-height: 29px;
+                color: $titlecolor;
+                margin-bottom: 0;
+                text-align: left;
+                cursor: pointer;
+
+                span,
+                small {
+                  display: inline-block;
+                  font-size: 14px;
+                  padding-left: 5px;
+                }
+              }
+              .TitleText.left-title {
+                background: url('../../public/images/arrow-img.png') no-repeat left center;
+                padding: 2px 0 0 15px;
+                background-size: 9px 15px;
+              }
+        }
+        
+        .rightBlock{
+            display: flex;
+            gap: 16px;
+            flex-direction: row;
+            align-items: center;
+
+            .item{
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-direction: row;
+
+                & > div{
+                    font-weight: 600;
+                }
+            }
+            & > div:last-child{
+                color: $SelectedColor;
+            }
+
+        }
+    }
+
+    .tabHeader{
+        display: flex;
+        gap: 16px;
+        flex-direction: row;
+        align-items: center;
+
+        .tabItem {
+            padding: 4px 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            color: $SelectedColor;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+
+            .count {
+                background-color: #de6b5c;
+                border: none;
+                border-radius: 4px;
+                padding: 2px 9px;
+                color: $NavbarTextColor;
+                font-size: 14px;
+            }
+        }
+
+        .active{
+            border-bottom: 2px solid $SelectedColor;
+        }
+    }
+
+    .tLabel {
+        color: $NavbarTextColor;
+        font-weight: 700;
+        padding: 6px 70px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        background-color: $SelectedColor;
+        text-transform: uppercase;
+    }
+
+    .tabBody{
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        height: 44vh;
+        overflow-y: scroll;
+
+        .bodyItem{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 64px;
+            border-bottom: 1px solid $cardheadderbg;
+            font-weight: 600;
+
+            button{
+                padding: 4px 8px;
+                cursor: pointer;
+                color: $NavbarTextColor;
+                background-color: $boot-bg-red;
+                font-weight: 600;
+                box-shadow: 0 8px 9px -4px rgba(220,76,100,0.3),0 4px 18px 0 rgba(220,76,100,0.2);
+                border: none;
+                border-radius: 4px;
+            }
+        }
+    }
+
+    .EKYCDone{
+        display: flex;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        align-items: center;
+    }
+    .footer{
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+
+        button{
+            padding: 4px 8px;
+            cursor: pointer;
+            color: $NavbarTextColor;
+            background-color: $primaryColor;
+            font-weight: 600;
+            box-shadow: 0 8px 9px -4px rgba(220,76,100,0.3),0 4px 18px 0 rgba(220,76,100,0.2);
+            border: none;
+            border-radius: 4px;
+        }
+    }
+}

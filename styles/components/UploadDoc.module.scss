@@ -1,0 +1,109 @@
+@import "../colors";
+
+.container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.leftBox {
+    width: 30%;
+    display: flex;
+    align-items: center;
+    margin-right: 20%;
+}
+
+.rightBox {
+    width: 50%;
+}
+
+.rightBox2 {
+    width: 50%;
+    display: flex;
+    align-items: center;
+}
+
+.checkBox {
+    width: 24px;
+    height: 24px;
+    margin-right: 1rem;
+}
+
+.checkBoxText {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 18px;
+    color: #333333;
+}
+
+
+.uploadInputBox {
+    background: #FFFFFF;
+    border: 1px solid #AEAEAE;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+    border-radius: 3px;
+    width: 300px;
+    padding: 0.5em;
+	margin-left: 20px;
+    margin-right: 1rem;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 20px;
+    color: $black;
+    text-transform: capitalize;
+}
+
+.upBox {
+    background: #FFFFFF;
+    border: 1px solid #AEAEAE;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+    border-radius: 3px;
+    width: 300px;
+    padding: 0.5em;
+	margin-left: 50px;
+    margin-right: 1rem;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 20px;
+    color: $black;
+	margin-top: 30px;
+    text-transform: capitalize;
+}
+
+.confirmUpload {
+    height: 4px;
+    width: 100%;
+}
+
+.columnInputBox {
+    background: #FFFFFF;
+    border: 1px solid #AEAEAE;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.22);
+    border-radius: 3px;
+    width: 100%;
+    height: 38px;
+    padding: 0.5em;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 18px;
+    color: $black;
+    text-transform: capitalize !important;
+ 
+
+    &:disabled{
+        background: #d9d9d9;
+        text-transform: capitalize !important;
+    }
+}
+
+.columnInputBox::placeholder {
+    color: $placeholder;
+}

@@ -1,0 +1,306 @@
+@import "../colors";
+
+.HeadingContainer {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 5px;
+}
+
+.leftHeadingContainer {
+    justify-content: flex-start;
+    align-items: center;
+    display: inline-flex;
+    // .leftImg{
+    //     border-radius: 50%;
+    //     border: 2px solid #0880c5 !important;
+    // }
+}
+
+.MiddleContainer {
+    text-align: center !important;
+
+    .govtitleText {
+        font-size: 17px;
+    }
+
+    .govText {
+        background: url('../../public/images/redline.svg') no-repeat left center;
+        font-weight: 700;
+        font-size: 12px;
+        background-size: 80px 85px;
+        padding-left: 67px;
+    }
+}
+
+.textContainer {
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.titleText {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 13px;
+    margin: 0;
+}
+
+.infoText {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 16px;
+    margin-bottom: 0;
+}
+
+.InfoTextContainer {
+    margin-bottom: 5px;
+    display: flex;
+
+    .phoneText,
+    .mailText {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+.InfoBarText {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    margin: 0 20px 0 6px;
+}
+
+.UserText {
+    color: $titlecolor;
+    font-weight: 600;
+    font-size: 16px !important;
+}
+
+.userImg {
+    display: block;
+    vertical-align: middle;
+}
+
+.SearchContainer {
+    float: right;
+    display: flex;
+}
+
+.searchBox {
+    height: 26px;
+    width: 230px;
+    background-color: #E9E9E9;
+    border-color: transparent;
+    padding-left: 6px;
+}
+
+.searchButton {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-color: transparent;
+    background-color: #E9E9E9;
+}
+
+@media all and (min-width: 1180px) and (max-width: 1300px) {
+    .titleText {
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .infoText {
+        font-size: 12px;
+    }
+
+
+}
+
+@media all and (min-width: 768px) and (max-width: 1023px) {
+    .leftHeadingContainer {
+        .middleImg {
+            width: 50px !important;
+            height: 50px !important;
+        }
+
+        .textContainer {
+            .govtitleText {
+                font-size: 11px;
+            }
+
+            .titleText {
+                font-size: 11px;
+            }
+
+            .infoText {
+                font-size: 10px;
+            }
+
+            .govText {
+                background: url('../../public/images/redline.svg') no-repeat left center;
+                font-weight: 700;
+                font-size: 8px;
+                padding-left: 14px;
+                background-size: 15px 50px;
+            }
+        }
+    }
+
+    .InfoTextContainer {
+        .InfoBarText {
+            font-size: 14px;
+        }
+    }
+}
+
+@media all and (min-width: 320px) and (max-width: 767px) {
+    .HeadingContainer {
+        max-width: 100%;
+        margin: auto;
+        padding: 8px 0;
+        position: relative;
+
+        .leftHeadingContainer {
+            width: 65%;
+
+            .leftImg {
+                max-width: 100%;
+                width: 100px;
+            }
+
+            .textContainer {
+                display: none;
+            }
+
+            .RegtextCon {
+                display: block !important;
+                padding-top: 8px;
+                margin-top: -10px;
+            }
+
+
+
+        }
+
+        .MiddleContainer {
+            padding: 0 10px;
+            position: absolute;
+            text-align: center;
+            left: 0;
+            top: 7px;
+            width: 100%;
+            display: block !important;
+
+            .middleImg {
+                width: 70px !important;
+                display: block !important;
+            }
+
+            .govtitleText {
+                font-size: 14px;
+            }
+
+            .govText {
+                background: url(/PDE/_next/static/media/redline.cd4e0c35.svg) no-repeat left center;
+                font-weight: 700;
+                font-size: 10px;
+                padding-left: 14px;
+                background-size: 60px 8px;
+            }
+
+        }
+
+
+
+        .InfoBarContainer {
+            display: contents !important;
+
+            .informationText {
+                margin-top: 0;
+                margin-bottom: -16px;
+                padding-top: 40px;
+
+                .InfoTextContainer {
+                    display: contents !important;
+                    margin-top: 30px;
+                    position: relative;
+
+                    .mailText {
+                        // padding-top: 6px;
+                    }
+                }
+
+                .InfoBarText {
+                    font-size: 12px;
+                    margin-top: 0px !important;
+                }
+
+            }
+
+            .mailTextInfo {
+                padding: 0px 0 15px;
+            }
+        }
+
+        .SearchContainer {
+            float: left !important;
+            padding:0 6px;
+            .UserText {
+                font-size: 12px !important;
+            }
+        }
+
+    }
+
+    // .leftHeadingContainer {
+    //     display: none;
+
+    //     .textContainer {
+    //         .govtitleText {
+    //             font-size: 11px;
+    //         }
+
+    //         .titleText {
+    //             font-size: 13px;
+    //         }
+
+    //         .infoText {
+    //             font-size: 12px;
+    //         }
+
+    //         .govText {
+    //             background: url('../../public/images/redline.svg') no-repeat left center;
+    //             font-weight: 700;
+    //             font-size: 8px;
+    //             padding-left: 14px;
+    //             background-size: 34px 50px;
+    //         }
+    //     }
+    // }
+
+    // .MiddleContainer {
+    //     display: flex;
+    // }
+
+    // .InfoBarContainer {
+    //     .InfoTextContainer {
+    //         margin: 10px 0 0 0;
+    //         display: block;
+
+    //         .phoneText,
+    //         .mailText {
+    //             display: inline-flex;
+    //             align-items: center;
+    //             padding-bottom: 10px;
+    //         }
+    //     }
+    // }
+
+
+}
