@@ -22,15 +22,18 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                    node -v
-                    npm -v
-                    npm install --unsafe-perm --legacy-peer-deps
-                '''
-            }
-        }
+       stage('Install Dependencies') {
+    steps {
+        sh '''
+            echo "Node version:"
+            node -v
+            which node
+
+            npm install --unsafe-perm --legacy-peer-deps
+        '''
+    }
+}
+
 
         stage('Build UI') {
             steps {
@@ -72,4 +75,5 @@ pipeline {
         }
     }
 }
+
 
