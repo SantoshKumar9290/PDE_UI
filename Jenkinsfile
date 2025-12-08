@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Node16"        // Using Node.js v16 (your server version)
+        nodejs "Node16"
     }
 
     environment {
@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
+        stage('SonarQube') {
             steps {
                 withSonarQubeEnv('pde_ui') {
                     sh """
@@ -56,25 +56,21 @@ pipeline {
         stage('PM2 Deploy') {
             steps {
                 sh '''
-                    # Install pm2 if missing
+                    # install pm2 if missing
                     if ! command -v pm2 >/dev/null 2>&1; then
                         sudo npm install -g pm2
                     fi
 
-                    npm install
-                    npm run build
-
-                    # Stop previous app
+                    # stop old
                     pm2 delete pde_ui || true
 
-                    # Start new app
-                    pm2 start npm --name "pde_ui" -- run start
+                    # start new (IMPORTANT fix)
+                    pm2 start "npm run start:pm2" --name "pde_ui"
 
-                    # Save pm2
+                    # persist
                     pm2 save
 
-                    # Show pm2 running processes
-                    pm2 list
+                    pm2 status
                 '''
             }
         }
