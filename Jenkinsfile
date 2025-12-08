@@ -7,6 +7,8 @@ pipeline {
 
     environment {
         SONAR_HOST = 'pde_ui'
+        # force the right node
+        PATH = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16/bin:$PATH"
     }
 
     stages {
@@ -22,7 +24,11 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    npm install
+                    echo "Node:"
+                    node -v
+                    echo "NPM:"
+                    npm -v
+                    npm install --unsafe-perm
                     npm install -g next
                 '''
             }
@@ -34,21 +40,17 @@ pipeline {
             }
         }
 
-        stage('SonarQube') {
+        stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('pde_ui') {
-                    sh """
-                        sonar-scanner \
-                        -Dsonar.projectKey=pde_ui \
-                        -Dsonar.projectName=pde_ui \
-                        -Dsonar.sources=. \
-                        -Dsonar.language=js \
-                        -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.typescript.tsconfigPath=tsconfig.json \
-                        -Dsonar.inclusions=src/**/*.js,src/**/*.jsx,src/**/*.ts,src/**/*.tsx,pages/**/*.tsx,pages/**/*.js \
-                        -Dsonar.exclusions=node_modules/**,.next/**,coverage/**,build/**,dist/**,**/*.min.js \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    """
+                    sh '''
+                      sonar-scanner \
+                      -Dsonar.projectKey=pde_ui \
+                      -Dsonar.projectName=pde_ui \
+                      -Dsonar.sources=. \
+                      -Dsonar.language=js \
+                      -Dsonar.sourceEncoding=UTF-8
+                    '''
                 }
             }
         }
@@ -56,21 +58,15 @@ pipeline {
         stage('PM2 Deploy') {
             steps {
                 sh '''
-                    # install pm2 if missing
                     if ! command -v pm2 >/dev/null 2>&1; then
-                        sudo npm install -g pm2
+                      sudo npm install -g pm2
                     fi
 
-                    # stop old
                     pm2 delete pde_ui || true
 
-                    # start new (IMPORTANT fix)
                     pm2 start "npm run start:pm2" --name "pde_ui"
 
-                    # persist
                     pm2 save
-
-                    pm2 status
                 '''
             }
         }
