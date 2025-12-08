@@ -6,7 +6,6 @@ pipeline {
     }
 
     environment {
-        # force Jenkins to use Node16 PATH
         PATH = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16/bin:$PATH"
     }
 
@@ -23,17 +22,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    echo "Node Version:"
                     node -v
-
-                    echo "NPM Version:"
                     npm -v
-
-                    # install with permissions (sharp requires build)
-                    npm install --unsafe-perm
-
-                    # install next globally (optional)
-                    npm install -g next
+                    npm install --unsafe-perm --legacy-peer-deps
                 '''
             }
         }
@@ -64,15 +55,11 @@ pipeline {
         stage('PM2 Deploy') {
             steps {
                 sh '''
-                    # install pm2 if missing
                     if ! command -v pm2 >/dev/null 2>&1; then
                         sudo npm install -g pm2
                     fi
 
-                    # stop old
                     pm2 delete pde_ui || true
-
-                    # start new
                     pm2 start "npm run start:pm2" --name "pde_ui"
 
                     pm2 save
