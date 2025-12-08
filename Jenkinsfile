@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Node18"
+        nodejs "Node16"        // Using Node.js v16 (your server version)
     }
 
     environment {
@@ -56,14 +56,25 @@ pipeline {
         stage('PM2 Deploy') {
             steps {
                 sh '''
-                    # Stop existing app if running
+                    # Install pm2 if missing
+                    if ! command -v pm2 >/dev/null 2>&1; then
+                        sudo npm install -g pm2
+                    fi
+
+                    npm install
+                    npm run build
+
+                    # Stop previous app
                     pm2 delete pde_ui || true
-                    
-                    # Start app with PM2
+
+                    # Start new app
                     pm2 start npm --name "pde_ui" -- run start
-                    
-                    # Save PM2 state
+
+                    # Save pm2
                     pm2 save
+
+                    # Show pm2 running processes
+                    pm2 list
                 '''
             }
         }
