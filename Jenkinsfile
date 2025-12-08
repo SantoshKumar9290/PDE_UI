@@ -6,8 +6,7 @@ pipeline {
     }
 
     environment {
-        SONAR_HOST = 'pde_ui'
-        # force the right node
+        # force Jenkins to use Node16 PATH
         PATH = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16/bin:$PATH"
     }
 
@@ -24,11 +23,16 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    echo "Node:"
+                    echo "Node Version:"
                     node -v
-                    echo "NPM:"
+
+                    echo "NPM Version:"
                     npm -v
+
+                    # install with permissions (sharp requires build)
                     npm install --unsafe-perm
+
+                    # install next globally (optional)
                     npm install -g next
                 '''
             }
@@ -36,7 +40,9 @@ pipeline {
 
         stage('Build UI') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    npm run build
+                '''
             }
         }
 
@@ -44,12 +50,12 @@ pipeline {
             steps {
                 withSonarQubeEnv('pde_ui') {
                     sh '''
-                      sonar-scanner \
-                      -Dsonar.projectKey=pde_ui \
-                      -Dsonar.projectName=pde_ui \
-                      -Dsonar.sources=. \
-                      -Dsonar.language=js \
-                      -Dsonar.sourceEncoding=UTF-8
+                        sonar-scanner \
+                        -Dsonar.projectKey=pde_ui \
+                        -Dsonar.projectName=pde_ui \
+                        -Dsonar.sources=. \
+                        -Dsonar.language=js \
+                        -Dsonar.sourceEncoding=UTF-8
                     '''
                 }
             }
@@ -58,15 +64,19 @@ pipeline {
         stage('PM2 Deploy') {
             steps {
                 sh '''
+                    # install pm2 if missing
                     if ! command -v pm2 >/dev/null 2>&1; then
-                      sudo npm install -g pm2
+                        sudo npm install -g pm2
                     fi
 
+                    # stop old
                     pm2 delete pde_ui || true
 
+                    # start new
                     pm2 start "npm run start:pm2" --name "pde_ui"
 
                     pm2 save
+                    pm2 list
                 '''
             }
         }
