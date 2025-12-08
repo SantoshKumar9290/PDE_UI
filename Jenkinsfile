@@ -2,18 +2,18 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Node18"   // Make sure Node18 is installed in Jenkins
+        nodejs "Node18"
     }
 
     environment {
-        SONAR_HOST = 'pde_ui'   // SonarQube server name (check Global Tool Config)
+        SONAR_HOST = 'pde_ui'
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git credentialsId: 'github-cred',  // your GitHub credentials ID
+                git credentialsId: 'github-cred',
                     url: 'https://github.com/SantoshKumar9290/PDE_UI.git',
                     branch: 'main'
             }
@@ -53,26 +53,18 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('PM2 Deploy') {
             steps {
-                sh 'docker build -t pde_ui:latest .'
-            }
-        }
-
-        stage('Stop Old Container') {
-            steps {
-                sh """
-                    if [ \$(docker ps -q --filter name=pde_ui) ]; then
-                        docker stop pde_ui
-                        docker rm pde_ui
-                    fi
-                """
-            }
-        }
-
-        stage('Run New Container') {
-            steps {
-                sh 'docker run -d -p 3000:3000 --name pde_ui pde_ui:latest'
+                sh '''
+                    # Stop existing app if running
+                    pm2 delete pde_ui || true
+                    
+                    # Start app with PM2
+                    pm2 start npm --name "pde_ui" -- run start
+                    
+                    # Save PM2 state
+                    pm2 save
+                '''
             }
         }
     }
