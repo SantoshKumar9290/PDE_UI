@@ -6,7 +6,10 @@ pipeline {
     }
 
     environment {
-        PATH = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16/bin:$PATH"
+    NODEJS_HOME = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16"
+    PATH = "$NODEJS_HOME/bin:$PATH"
+}
+
     }
 
     stages {
@@ -69,3 +72,4 @@ pipeline {
         }
     }
 }
+
