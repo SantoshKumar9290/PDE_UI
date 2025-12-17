@@ -1301,9 +1301,6 @@ export const englishToTeluguTransliteration = async (str: string, source: any) =
 
 export const googleAPI = async (value: string, signal?: any) => {
     return {};
-    return await axios.get(`https://translation.googleapis.com/language/translate/v2?key=AIzaSyA9vb_JjnQ8Ik8PF3Pp63RwLcypzclHNU8&source=en&target=te&q=${value}`, signal ? { signal } : {})
-        .then(res => { return res.data })
-        .catch(err => { return {}; })
 }
 
 export const syncservice = async (id) => {

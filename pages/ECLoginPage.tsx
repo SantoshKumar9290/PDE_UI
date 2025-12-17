@@ -19,7 +19,7 @@ import Head from 'next/head';
 
 
 
-const initialLoginDetails = {
+const initialLoginDetails :{[key:string]:any,aadhaar:string}= {
   email: '',
   mobile: '',
   aadhaar: '',

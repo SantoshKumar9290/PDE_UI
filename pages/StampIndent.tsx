@@ -49,7 +49,7 @@ const StampIndent = () => {
 
     // let DenominationsList = ["10", "20", "50", '100'];
     let Categorylist = ['NON_JUDICIAL STAMPS', 'JUDICIAL STAMPS']
-    const initialLoginDetails = {
+    const initialLoginDetails:{payMode:string,loginId:string,aadhaar?:string,email?:any,mobile:string,aadhaarHash:string,loginMode:string} = {
         email: '',
         mobile: '',
         aadhaar: '',
