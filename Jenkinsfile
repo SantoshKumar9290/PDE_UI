@@ -2,45 +2,74 @@ pipeline {
     agent any
 
     tools {
-        nodejs "node20"   // Jenkins NodeJS installation name
+        nodejs "Node16"
+    }
+
+    environment {
+        NODEJS_HOME = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16"
+        PATH = "${NODEJS_HOME}/bin:${PATH}"
     }
 
     stages {
-        stage('Checkout') {
+
+        stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Khajasyed73/PDE_UI.git'
+                git credentialsId: 'github-cred',
+                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git',
+                    branch: 'main'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh '''
+                    echo "Node version:"
+                    node -v
+                    npm -v
+                    which node
+
+                    rm -rf node_modules package-lock.json
+                    npm install --legacy-peer-deps
+                '''
             }
         }
 
-        stage('Build') {
+        stage('Build UI') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    npm run build
+                '''
             }
         }
 
-        stage('Test') {
+        stage('SonarQube Scan') {
             steps {
-                sh 'npm test || true'
+                withSonarQubeEnv('pde_ui') {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=pde_ui \
+                        -Dsonar.projectName=pde_ui \
+                        -Dsonar.sources=. \
+                        -Dsonar.language=js \
+                        -Dsonar.sourceEncoding=UTF-8
+                    '''
+                }
             }
         }
 
-        stage('Archive Build Artifacts') {
+        stage('PM2 Deploy') {
             steps {
-                archiveArtifacts artifacts: '.next/**', fingerprint: true
-            }
-        }
-    }
+                sh '''
+                    if ! command -v pm2 >/dev/null 2>&1; then
+                        sudo npm install -g pm2
+                    fi
 
-    post {
-        always {
-            echo "Pipeline finished."
+                    pm2 delete pde_ui || true
+                    pm2 start "npm run start:pm2" --name "pde_ui"
+                    pm2 save
+                    pm2 list
+                '''
+            }
         }
     }
 }
