@@ -10,7 +10,7 @@ import Table from 'react-bootstrap/Table';
 import { TbCalendarTime } from 'react-icons/tb';
 import { SaveGetstartedDetails } from '../src/redux/formSlice';
 import { decryptWithAESPassPhrase, getApplicationDetails, UseAuthenticateUpdate, UseCheckSlotEnabledForSro, UseDeleteSlot, UseGetAadharDetails, UseGetAadharOTP, UseGetSlotsbyId, UseSendingMobileOTP, UseslotQrParties, UseSlotVerify } from '../src/axios';
-import { CallingAxios, KeepLoggedIn, ShowMessagePopup, ShowPreviewPopup } from '../src/GenericFunctions';
+import { CallingAxios, encodeBase64, KeepLoggedIn, ShowMessagePopup, ShowPreviewPopup } from '../src/GenericFunctions';
 import Head from 'next/head';
 import CheckBox from '../src/components/CheckBox';
 import { setPresenterData } from '../src/utils';
@@ -120,7 +120,7 @@ const SlotBooking = () => {
 
     const SendOTP = async () => {
         if (otpList && otpList.otpType === "Aadhar") {
-            let result = await CallingAxios(UseGetAadharOTP(btoa(otpList.aadhaar)));
+            let result = await CallingAxios(UseGetAadharOTP(encodeBase64(otpList.aadhaar)));
             if (result && result.status === 'Success') {
                 ShowMessagePopup(true, "OTP Sent to Mobile Number Linked with Aadhaar"
                     , "");
@@ -152,7 +152,7 @@ const SlotBooking = () => {
         // e.preventDefault();
         if (otpList.otpType === 'Aadhar') {
             let result: any = await CallingAxios(UseGetAadharDetails({
-                aadharNumber: btoa(otpList.aadhaar),
+                aadharNumber: encodeBase64(otpList.aadhaar),
                 transactionNumber: get(aadhaarOTPResponse, 'transactionNumber', ''),
                 otp: otpList.otp
             }))

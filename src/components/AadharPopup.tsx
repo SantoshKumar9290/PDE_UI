@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
 import { AadharPopupAction } from '../redux/commonSlice';
 import { useRouter } from 'next/router';
-import { CallingAxios, ShowMessagePopup, useVoiceSequenceAadhaarConsent2 } from '../GenericFunctions';
+import { CallingAxios, encodeBase64, ShowMessagePopup, useVoiceSequenceAadhaarConsent2 } from '../GenericFunctions';
 import { getSezJuriSRO, getSEZRepresentativeList, UseGetAadharDetails, UseGetAadharOTP, SaveAadharConsentDetails } from '../axios';
 import TableText from '../../src/components/TableText';
 import TableDropdownSRO from '../../src/components/TableDropdownSRO';
@@ -187,7 +187,7 @@ const AadharPopup = () => {
   }
   const ReqDetails = async () => {
     let result = await CallingAxios(UseGetAadharDetails({
-      aadharNumber: btoa(AadharNumberDetails.aadharNumber),
+      aadharNumber: encodeBase64(AadharNumberDetails.aadharNumber),
       transactionNumber: AadharNumberDetails.OTPResponse.transactionNumber,
       otp: AadharNumberDetails.otp
     }));
@@ -228,7 +228,7 @@ const AadharPopup = () => {
     }
   }
   const CallGetOTP = async () => {
-    let myAadhar = btoa(AadharNumberDetails.aadharNumber);
+    let myAadhar = encodeBase64(AadharNumberDetails.aadharNumber);
     let result = await CallingAxios(UseGetAadharOTP(myAadhar));
     if (result && result.status != "Failure") {
       setTempMemory({ AadharPresent: true });

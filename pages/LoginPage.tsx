@@ -11,7 +11,7 @@ import { PopupAction } from '../src/redux/commonSlice';
 import { resetLoginDetails, saveLoginDetails, userLogin, verifyUser } from '../src/redux/loginSlice';
 import Image from 'next/image';
 import { Col, Container, Row, Modal } from 'react-bootstrap';
-import { CallingAxios, ShowMessagePopup, useVoiceSequenceAadhaarConsent2 } from '../src/GenericFunctions';
+import { CallingAxios, encodeBase64, ShowMessagePopup, useVoiceSequenceAadhaarConsent2 } from '../src/GenericFunctions';
 import TableInputRadio from '../src/components/TableInputRadio3';
 import { encryptWithAES, Consent1, Consent2_Eng, Consent2_Tel } from '../src/utils';
 import Button from '../src/components/Button';
@@ -335,7 +335,7 @@ const LoginPage = () => {
       } else {
         (async () => {
           setLoading(true);
-          let result = await UseGetAadharOTP(btoa(LoginDetails.aadhaar));
+          let result = await UseGetAadharOTP(encodeBase64(LoginDetails.aadhaar));
           if (result && result.status === 'Success') {
             setSentOTP(true)
             ShowAlert(true, 'OTP Sent Successfully');
@@ -483,7 +483,7 @@ const LoginPage = () => {
     if (LoginDetails.loginMode === 'Aadhaar Number') {
       setLoading(true);
       let result: any = await UseGetAadharDetails({
-        aadharNumber: btoa(LoginDetails.aadhaar),
+        aadharNumber: encodeBase64(LoginDetails.aadhaar),
         transactionNumber: get(aadhaarOTPResponse, 'transactionNumber', ''),
         otp: otp
       });

@@ -10,7 +10,7 @@ import { useAppSelector, useAppDispatch } from '../src/redux/hooks';
 import { resetLoginDetails, saveLoginDetails, signUp, verifyUserReg } from '../src/redux/loginSlice';
 import { PopupAction } from '../src/redux/commonSlice';
 import { useEmailVerify, UseGetAadharDetails, UseGetAadharOTP ,UseReportDownload} from '../src/axios';
-import { CallingAxios, ShowMessagePopup } from '../src/GenericFunctions';
+import { CallingAxios, encodeBase64, ShowMessagePopup } from '../src/GenericFunctions';
 import { encryptWithAES, NameValidation } from '../src/utils';
 import Button from '../src/components/Button';
 import Head from 'next/head';
@@ -176,7 +176,7 @@ const RegistrationPage = () => {
             (async () => {
                 if (!LoginDetails.loginEmail && LoginDetails.aadhar) {
                     setLoading(true)
-                    let result = await UseGetAadharOTP(btoa(LoginDetails.aadhar));
+                    let result = await UseGetAadharOTP(encodeBase64(LoginDetails.aadhar));
                     if (result && result.status === 'Success') {
                         ShowAlert(true, "OTP Sent to Mobile Number Linked with Aadhaar", "");
                         setSentOTP(true)
@@ -211,7 +211,7 @@ const RegistrationPage = () => {
         if (!LoginDetails.loginEmail && LoginDetails.aadhar) {
             setLoading(true);
             let result: any = await UseGetAadharDetails({
-                aadharNumber: btoa(LoginDetails.aadhar),
+                aadharNumber: encodeBase64(LoginDetails.aadhar),
                 transactionNumber: get(aadhaarOTPResponse, 'transactionNumber', ''),
                 otp: otp
             });
