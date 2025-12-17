@@ -6,10 +6,8 @@ pipeline {
     }
 
     environment {
-    NODEJS_HOME = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16"
-    PATH = "$NODEJS_HOME/bin:$PATH"
-}
-
+        NODEJS_HOME = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16"
+        PATH = "${NODEJS_HOME}/bin:${PATH}"
     }
 
     stages {
@@ -22,18 +20,19 @@ pipeline {
             }
         }
 
-       stage('Install Dependencies') {
-    steps {
-        sh '''
-            echo "Node version:"
-            node -v
-            which node
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    echo "Node version:"
+                    node -v
+                    npm -v
+                    which node
 
-            npm install --unsafe-perm --legacy-peer-deps
-        '''
-    }
-}
-
+                    rm -rf node_modules package-lock.json
+                    npm install --legacy-peer-deps
+                '''
+            }
+        }
 
         stage('Build UI') {
             steps {
@@ -67,7 +66,6 @@ pipeline {
 
                     pm2 delete pde_ui || true
                     pm2 start "npm run start:pm2" --name "pde_ui"
-
                     pm2 save
                     pm2 list
                 '''
@@ -75,5 +73,3 @@ pipeline {
         }
     }
 }
-
-
