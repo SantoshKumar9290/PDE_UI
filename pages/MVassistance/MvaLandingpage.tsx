@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Row, Col, Table, Modal, Container } from "react-bootstrap";
 import TableInput from '../../src/components/TableInput';
-import { CallingAxios, KeepLoggedIn, ShowMessagePopup } from "../../src/GenericFunctions";
+import { CallingAxios, decodeBase64, KeepLoggedIn, ShowMessagePopup } from "../../src/GenericFunctions";
 import { previewPDF, getMVRequestsData, GetPaymentStatus, UpdatePaymentMVRequest } from "../../src/axios";
 import { Loading } from "../../src/redux/hooks";
 import { useAppSelector, useAppDispatch } from '../../src/redux/hooks';
@@ -126,7 +126,7 @@ const MvaLandingpage = () => {
             console.log(data);
             const response = await CallingAxios(previewPDF(data));
             if (response) {
-                const binaryData = atob(response);
+                const binaryData = decodeBase64(response);
                 const byteArray = new Uint8Array(binaryData.length);
                 for (let i = 0; i < binaryData.length; i++) {
                     byteArray[i] = binaryData.charCodeAt(i);

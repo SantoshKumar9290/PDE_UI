@@ -15,7 +15,11 @@ export const encodeBase64 = (value: string): string => {
   bytes.forEach((b) => (binary += String.fromCharCode(b)));
   return window.btoa(binary);
 };
-
+export const decodeBase64 = (base64: string): string => {
+  const binary = window.atob(base64);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+};
 
 
 export const ShowMessagePopup = (type, message, redirectOnSuccess, time?) => {

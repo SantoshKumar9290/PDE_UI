@@ -14,7 +14,7 @@ import { getsroList, generateDocumentId, getstamptypelist, GetPaymentStatus, get
 import { AadharPopupAction, PopupAction } from '../src/redux/commonSlice';
 import Image from 'next/image';
 import Head from 'next/head';
-import { CallingAxios, ShowMessagePopup, AadharencryptData, encodeBase64 } from '../src/GenericFunctions';
+import { CallingAxios, ShowMessagePopup, AadharencryptData, encodeBase64, decodeBase64 } from '../src/GenericFunctions';
 import TableText from '../src/components/TableText';
 import TableInput from '../src/components/TableInput';
 import TableInputText from '../src/components/TableInputText';
@@ -293,7 +293,7 @@ const StampIndent = () => {
             }
             const response = await CallingAxios(stampindentreport(data));
             if (response) {
-                const binaryData = atob(response.data);
+                const binaryData = decodeBase64(response.data);
                 const byteArray = new Uint8Array(binaryData.length);
                 for (let i = 0; i < binaryData.length; i++) {
                     byteArray[i] = binaryData.charCodeAt(i);

@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import { Router } from 'next/router';
 import Head from 'next/head';
 import TableInputRadio from '../src/components/TableInputRadio';
-import { CallingAxios, KeepLoggedIn, ShowMessagePopup } from '../src/GenericFunctions';
+import { CallingAxios, decodeBase64, KeepLoggedIn, ShowMessagePopup } from '../src/GenericFunctions';
 import { ImCross } from 'react-icons/im';
 
 const ReportsViewPage = () => {
@@ -139,7 +139,7 @@ const ReportsViewPage = () => {
             let data = ApplicationDetails
             const response = await CallingAxios(section47ApreviewPDF(data));
             if (response) {
-                const binaryData = atob(response);
+                const binaryData = decodeBase64(response);
                 const byteArray = new Uint8Array(binaryData.length);
                 for (let i = 0; i < binaryData.length; i++) {
                     byteArray[i] = binaryData.charCodeAt(i);

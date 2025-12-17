@@ -14,7 +14,7 @@ import { commonSlice, DeletePopupAction, GooglemapAction, PopupAction } from '..
 import { SavePropertyDetails } from '../src/redux/formSlice';
 import TableInputRadio2 from '../src/components/TableInputRadio2';
 import covenantType from '../src/covenantType';
-import { CallingAxios, DateFormator, KeepLoggedIn, MasterCodeIdentifier, ShowMessagePopup, ShowPreviewPopup, TotalMarketValueCalculator } from '../src/GenericFunctions';
+import { CallingAxios, DateFormator, decodeBase64, KeepLoggedIn, MasterCodeIdentifier, ShowMessagePopup, ShowPreviewPopup, TotalMarketValueCalculator } from '../src/GenericFunctions';
 import Popstyles from '../styles/components/PopupAlert.module.scss';
 import Head from 'next/head';
 import { get } from 'lodash';
@@ -1660,7 +1660,7 @@ useEffect(() => {
         try {
             const response = await CallingAxios(documentPreview(data));
             if (response) {
-                const binaryData = atob(response);
+                const binaryData = decodeBase64(response);
                 const byteArray = new Uint8Array(binaryData.length);
                 for (let i = 0; i < binaryData.length; i++) {
                     byteArray[i] = binaryData.charCodeAt(i);
@@ -1861,7 +1861,7 @@ const downloadeSignFile = async (txnId: string) => {
 
 const processAndOpenPdf = (base64Data: string) => {
     try {
-        const binaryData = atob(base64Data);
+        const binaryData = decodeBase64(base64Data);
         const byteArray = new Uint8Array(binaryData.length);
         for (let i = 0; i < binaryData.length; i++) {
             byteArray[i] = binaryData.charCodeAt(i);

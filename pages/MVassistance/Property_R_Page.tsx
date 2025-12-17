@@ -13,7 +13,7 @@ import { SavePropertyDetails } from '../../src/redux/formSlice';
 import { PopupAction } from '../../src/redux/commonSlice';
 import Image from 'next/image';
 import Head from 'next/head';
-import { CallingAxios, MasterCodeIdentifier, ShowMessagePopup, MuncipleKeyNameIdentifier, DoorNOIdentifier, TotalMarketValueCalculator } from '../../src/GenericFunctions';
+import { CallingAxios, MasterCodeIdentifier, ShowMessagePopup, MuncipleKeyNameIdentifier, DoorNOIdentifier, TotalMarketValueCalculator, decodeBase64 } from '../../src/GenericFunctions';
 import Modal from 'react-bootstrap/Modal';
 import TableText from '../../src/components/TableText';
 import TableInputText from '../../src/components/TableInputText';
@@ -475,7 +475,7 @@ const Property_R_Page = () => {
                 MVreqDetails(mvarepdata.REQ_NO)
                 handleShow()
                 if (mvAssistReport) {
-                    const binaryData = atob(mvAssistReport?.data);
+                    const binaryData = decodeBase64(mvAssistReport?.data);
                     const byteArray = new Uint8Array(binaryData.length);
                     for (let i = 0; i < binaryData.length; i++) {
                         byteArray[i] = binaryData.charCodeAt(i);
@@ -990,7 +990,7 @@ const Property_R_Page = () => {
             }
             const response = await CallingAxios(previewPDF(data));
             if (response) {
-                const binaryData = atob(response);
+                const binaryData = decodeBase64(response);
                 const byteArray = new Uint8Array(binaryData.length);
                 for (let i = 0; i < binaryData.length; i++) {
                     byteArray[i] = binaryData.charCodeAt(i);
