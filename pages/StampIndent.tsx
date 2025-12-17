@@ -14,7 +14,7 @@ import { getsroList, generateDocumentId, getstamptypelist, GetPaymentStatus, get
 import { AadharPopupAction, PopupAction } from '../src/redux/commonSlice';
 import Image from 'next/image';
 import Head from 'next/head';
-import { CallingAxios, ShowMessagePopup, AadharencryptData } from '../src/GenericFunctions';
+import { CallingAxios, ShowMessagePopup, AadharencryptData, encodeBase64 } from '../src/GenericFunctions';
 import TableText from '../src/components/TableText';
 import TableInput from '../src/components/TableInput';
 import TableInputText from '../src/components/TableInputText';
@@ -345,7 +345,7 @@ const StampIndent = () => {
             obj.type = 'aadhar';
             obj.aadhar = encryptWithAES(`${LoginDetails.aadhaar}`);
             setLoading(true);
-            let myAadhar = btoa(LoginDetails.aadhaar)
+            let myAadhar = encodeBase64(LoginDetails.aadhaar)
             let result = await CallingAxios(UseGetAadharOTP(myAadhar));
             if (result && result.status === 'Success') {
                 setSentOTP(true);
@@ -402,7 +402,7 @@ const StampIndent = () => {
     const onLogin = async (e) => {
         e.preventDefault();
         let result = await CallingAxios(UseGetAadharDetails({
-            aadharNumber: btoa(LoginDetails.aadhaar),
+            aadharNumber: encodeBase64(LoginDetails.aadhaar),
             transactionNumber: aadhaarOTPResponse.transactionNumber,
             otp: otp
         }));

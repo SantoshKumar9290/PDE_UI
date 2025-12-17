@@ -11,7 +11,7 @@ import Table from 'react-bootstrap/Table';
 import uploadStyles from '../styles/components/UploadDoc.module.scss'
 
 import { useSavePartyDetails, useUpdatePartyDetails, useSaveRepresentDetails, UseAdharValidate, useNriPanValidation, usegetPassportVerfication, UseSendMobileOTP, UseAuthenticateUpdate, UseMobileVerify, UseGetAadharDetails, UseGetAadharOTP, useGetDistrictList, getLinkedSroDetails, getSaleCumGPADetails, UsegetapiicGovtInstitutions, UseGetAppicEmplData, UseGetAppicEmplPersonData, SaveAadharConsentDetails } from '../src/axios'; import { AadharPopupAction, PopupAction } from '../src/redux/commonSlice';
-import { CallingAxios, KeepLoggedIn, ShowAadharPopup, ShowMessagePopup, ShowPreviewPopup, useVoiceSequenceAadhaarConsent2, useVoicePlayerAadhaarConsent1 } from '../src/GenericFunctions';
+import { CallingAxios, KeepLoggedIn, ShowAadharPopup, ShowMessagePopup, ShowPreviewPopup, useVoiceSequenceAadhaarConsent2, useVoicePlayerAadhaarConsent1, encodeBase64 } from '../src/GenericFunctions';
 import {   allowMutationPayments, encryptId, EncryptAdrwithPkcs, ValidateShareOnPartition, Consent1, Consent2_Eng, Consent2_Tel  } from '../src/utils'
 import Popstyles from '../styles/components/PopupAlert.module.scss';
 import Head from 'next/head';
@@ -1282,7 +1282,7 @@ const DocumentPreview = async (data: any) => {
     }
 };
     const handleSentAadharOTP = async () => {
-        const byteAadhar = btoa(PartyDetails.aadhar? PartyDetails.aadhar:PartyDetails.aadhaar);
+        const byteAadhar = encodeBase64(PartyDetails.aadhar? PartyDetails.aadhar:PartyDetails.aadhaar);
         let result = await CallingAxios(UseGetAadharOTP(byteAadhar));
         if (result && result.status != "Failure") {
             setAadharOtpSent(true)
@@ -1295,7 +1295,7 @@ const DocumentPreview = async (data: any) => {
     }
     const handleOTPEnter =async(e:any)=>{
         const requiredParams = {
-            aadharNumber: btoa(PartyDetails.aadhar?PartyDetails.aadhar:PartyDetails.aadhaar),
+            aadharNumber: encodeBase64(PartyDetails.aadhar?PartyDetails.aadhar:PartyDetails.aadhaar),
             transactionNumber: aadharValidation.otpDetails.transactionNumber,
             otp:aadharValidation.OTP
         }

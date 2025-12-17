@@ -9,6 +9,14 @@ import { UseGetLocationDetails, UseUpdateDocument } from './axios';
 import { decryptWithAES, encryptWithAES } from './utils';
 import CryptoJS from "crypto-js";
 
+export const encodeBase64 = (value: string): string => {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  return window.btoa(binary);
+};
+
+
 
 export const ShowMessagePopup = (type, message, redirectOnSuccess, time?) => {
   store.dispatch(PopupAction({ enable: true, type: type, message: message, redirectOnSuccess, time: time ? time : null }));
