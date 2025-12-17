@@ -333,7 +333,7 @@ const AddPartyPage = () => {
 
     const getApiicGovtdata = async () => {
         let result = await UsegetapiicGovtInstitutions() 
-        let updatedDetails = {
+        let updatedDetails:any = {
             ...PartyDetails,
             name: result.data[0].name,
             relationType: "",
