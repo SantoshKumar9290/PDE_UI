@@ -42,7 +42,7 @@ const AddPartyPage = () => {
     let CurrentPartyDetails = useAppSelector(state => state.form.CurrentPartyDetails);
     const [ApplicationDetails, setApplicationDetails] = useState<any>({ applicationId: GetstartedDetails.applicationId, registrationType: { TRAN_MAJ_CODE: "", TRAN_MIN_CODE: "", TRAN_DESC: "", PARTY1: "", PARTY1_CODE: "", PARTY2: "", PARTY2_CODE: "" }, documentNature: { TRAN_MIN_CODE: "" }, status: "ACTIVE", sroDetails: null, executent: [], claimant: [], property: [], payment: [], MortagageDetails: [], giftRelation: [], presenter: [], covanants: {}, sroCode: "", amount: "",AttendanceDetails:{},witness:[] });
     let CurrentRepresentDetails = useAppSelector(state => state.form.CurrentRepresentDetails);
-    const [PartyDetails, setPartyDetails] = useState<{[key:string]:any,aadhaar:string}>({phone: '',mobileOTP: '',operation: 'Add', PartyType: 'CLAIMANT',representSubType:'Claimant',representType:'Claimant', isRepresentativeAdded:true});
+    const [PartyDetails, setPartyDetails] = useState<{[key:string]:any,aadhaar:string}>({aadhaar:"",phone: '',mobileOTP: '',operation: 'Add', PartyType: 'CLAIMANT',representSubType:'Claimant',representType:'Claimant', isRepresentativeAdded:true});
 
     const [aadharStatus,setaadharStatus] = useState(false)
     const [isPanOrFormReq,setIsPanOrFormReq] = useState(false)
