@@ -957,7 +957,7 @@ const AddPartyPage = () => {
             }
         }
         PartyDetails.phone = PartyDetails.partyType === 'Deceased' || PartyDetails.partyCode === 'WT' && loginDeatils.loginMode === 'VSWS' ?'':PartyDetails.phone
-        let party = { ...PartyDetails, applicationId: GetstartedDetails.applicationId };
+        let party:any = { ...PartyDetails, applicationId: GetstartedDetails.applicationId };
 
         party.applicationId = GetstartedDetails.applicationId;
         if (party.representType == "Representative") {
