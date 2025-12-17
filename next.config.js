@@ -36,7 +36,8 @@ const nextConfig = {
                 ADR_SECRET_IV :'!Gr$IVApP&' ,
 		OWN_ESIGN_URL: 'https://esign.rs.ap.gov.in/igrs-esign-service',
 		SLOT_BOOKING_URL:process.env.SLOT_BOOKING_URL,
-		AADHAR_URL:process.env.AADHAR_URL
+		AADHAR_URL:process.env.AADHAR_URL,
+		GOOGLE_KEY:'AIzaSyBg1nhgyR7W28t3nMCwIRiHVEClk12JFPY'
 		
 	},
 }
