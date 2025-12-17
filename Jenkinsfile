@@ -26,7 +26,6 @@ pipeline {
                     echo "Node version:"
                     node -v
                     npm -v
-                    which node
 
                     rm -rf node_modules package-lock.json
                     npm install --legacy-peer-deps
@@ -36,9 +35,7 @@ pipeline {
 
         stage('Build UI') {
             steps {
-                sh '''
-                    npm run build
-                '''
+                sh 'npm run build'
             }
         }
 
@@ -57,6 +54,20 @@ pipeline {
             }
         }
 
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Archive Build') {
+            steps {
+                archiveArtifacts artifacts: 'build/**', fingerprint: true
+            }
+        }
+
         stage('PM2 Deploy') {
             steps {
                 sh '''
@@ -64,12 +75,29 @@ pipeline {
                         sudo npm install -g pm2
                     fi
 
-                    pm2 delete pde_ui || true
+                    pm2 startOrReload ecosystem.config.js || \
                     pm2 start "npm run start:pm2" --name "pde_ui"
+
                     pm2 save
                     pm2 list
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ UI Build & Deployment Successful"
+        }
+
+        failure {
+            echo "❌ UI Build or Deployment Failed"
+        }
+
+        always {
+            echo "📌 Job: ${env.JOB_NAME}"
+            echo "📌 Build Number: ${env.BUILD_NUMBER}"
+            echo "📌 Status: ${currentBuild.currentResult}"
         }
     }
 }
