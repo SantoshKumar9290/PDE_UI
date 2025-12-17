@@ -40,7 +40,7 @@ const GooglemapService = () => {
         dispatch(GooglemapAction({ enable: false, id: GooglemapMemory.id, Location: { lat: 0, lng: 0 }, result: false, Reason: "" }));
     }
 
-    const { isLoaded, loadError } = useLoadScript({ googleMapsApiKey: 'AIzaSyBg1nhgyR7W28t3nMCwIRiHVEClk12JFPY' });
+    const { isLoaded, loadError } = useLoadScript({ googleMapsApiKey: process.env.GOOGLE_KEY });
     if (loadError) { return <div>Error loading maps</div>; }
     if (!isLoaded) { return <div>Loading maps</div>; }
 
