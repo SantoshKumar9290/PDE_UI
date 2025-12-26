@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        nodejs "Node16"
+        nodejs 'Node16'
     }
 
     environment {
-        NODEJS_HOME = "/var/lib/jenkins/tools/hudson.plugins.nodejs.NodeJSInstallation/Node16"
-        PATH = "${NODEJS_HOME}/bin:${PATH}"
+        NODE_ENV = 'production'
+        SONAR_SCANNER_HOME = tool 'SonarScanner'
     }
 
     stages {
@@ -23,7 +23,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    echo "Node version:"
+                    echo "Node Version:"
                     node -v
                     npm -v
 
@@ -39,16 +39,16 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
+        stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('pde_ui') {
+                withSonarQubeEnv('SonarQubeServer') {
                     sh '''
-                        sonar-scanner \
+                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=pde_ui \
                         -Dsonar.projectName=pde_ui \
                         -Dsonar.sources=. \
-                        -Dsonar.language=js \
-                        -Dsonar.sourceEncoding=UTF-8
+                        -Dsonar.sourceEncoding=UTF-8 \
+                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
                     '''
                 }
             }
@@ -56,30 +56,22 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 2, unit: 'MINUTES') {
+                timeout(time: 3, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
         }
 
-        stage('Archive Build') {
-            steps {
-                archiveArtifacts artifacts: 'build/**', fingerprint: true
-            }
-        }
-
-        stage('PM2 Deploy') {
+        stage('Deploy with PM2') {
             steps {
                 sh '''
                     if ! command -v pm2 >/dev/null 2>&1; then
                         sudo npm install -g pm2
                     fi
 
-                    pm2 startOrReload ecosystem.config.js || \
-                    pm2 start "npm run start:pm2" --name "pde_ui"
-
+                    pm2 delete pde_ui || true
+                    pm2 start ecosystem.config.js --name pde_ui
                     pm2 save
-                    pm2 list
                 '''
             }
         }
@@ -87,17 +79,15 @@ pipeline {
 
     post {
         success {
-            echo "✅ UI Build & Deployment Successful"
+            echo "✅ Build, Scan & Deployment Successful"
         }
-
         failure {
-            echo "❌ UI Build or Deployment Failed"
+            echo "❌ Pipeline Failed"
         }
-
         always {
-            echo "📌 Job: ${env.JOB_NAME}"
-            echo "📌 Build Number: ${env.BUILD_NUMBER}"
-            echo "📌 Status: ${currentBuild.currentResult}"
+            echo "Job: ${env.JOB_NAME}"
+            echo "Build: ${env.BUILD_NUMBER}"
+            echo "Status: ${currentBuild.currentResult}"
         }
     }
 }
