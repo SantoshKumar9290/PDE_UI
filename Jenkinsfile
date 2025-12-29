@@ -66,11 +66,11 @@ pipeline {
             steps {
                 sh '''
                     if ! command -v pm2 >/dev/null 2>&1; then
-                        sudo npm install -g pm2
+                        npm install -g pm2 --save-dev
                     fi
 
                 
-                    pm2 start ecosystem.config.js --name pde_ui
+                    npx pm2 start ecosystem.config.js --name pde_ui
                     pm2 save
                 '''
             }
@@ -91,4 +91,5 @@ pipeline {
         }
     }
 }
+
 
