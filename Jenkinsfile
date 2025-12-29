@@ -69,7 +69,7 @@ pipeline {
                         sudo npm install -g pm2
                     fi
 
-                    pm2 delete pde_ui || true
+                
                     pm2 start ecosystem.config.js --name pde_ui
                     pm2 save
                 '''
@@ -91,3 +91,4 @@ pipeline {
         }
     }
 }
+
