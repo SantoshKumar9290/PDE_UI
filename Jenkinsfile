@@ -23,17 +23,15 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    echo "Node Version:"
                     node -v
                     npm -v
-
                     rm -rf node_modules package-lock.json
                     npm install --legacy-peer-deps
                 '''
             }
         }
 
-        stage('Build UI') {
+        stage('Build Application') {
             steps {
                 sh 'npm run build'
             }
@@ -41,22 +39,23 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') {
-                    sh '''
-                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=pde_ui \
-                        -Dsonar.projectName=pde_ui \
-                        -Dsonar.sources=. \
-                        -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    '''
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQubeServer') {
+                        sh '''
+                            ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectKey=PDE_FRONTEND \
+                            -Dsonar.projectName=PDE_FRONTEND \
+                            -Dsonar.host.url=$SONAR_HOST_URL \
+                            -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 3, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -69,8 +68,8 @@ pipeline {
                         sudo npm install -g pm2
                     fi
 
-                    pm2 delete pde_ui || true
-                    pm2 start ecosystem.config.js --name pde_ui
+                    pm2 delete pde_frontend || true
+                    pm2 start ecosystem.config.js --name pde_frontend
                     pm2 save
                 '''
             }
@@ -79,15 +78,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build, Scan & Deployment Successful"
+            echo "✅ Build + Sonar Scan + Deployment SUCCESS"
         }
         failure {
-            echo "❌ Pipeline Failed"
-        }
-        always {
-            echo "Job: ${env.JOB_NAME}"
-            echo "Build: ${env.BUILD_NUMBER}"
-            echo "Status: ${currentBuild.currentResult}"
+            echo "❌ Build or Sonar Scan FAILED"
         }
     }
 }
