@@ -62,19 +62,18 @@ pipeline {
             }
         }
 
-        stage('Deploy with PM2') {
-            steps {
-                sh '''
-                    if ! command -v pm2 >/dev/null 2>&1; then
-                        npm install -g pm2 --save-dev
-                    fi
-
-                
-                    npx pm2 start ecosystem.config.js --name pde_ui
-                    pm2 save
-                '''
-            }
-        }
+      stage('Deploy with PM2') {
+    steps {
+        sh '''
+            npm install -g pm2 serve
+ 
+            pm2 delete pde_ui || true
+ 
+            pm2 start ecosystem.config.js
+            pm2 save
+        '''
+    }
+}
     }
 
     post {
@@ -91,5 +90,6 @@ pipeline {
         }
     }
 }
+
 
 
