@@ -2,10 +2,9 @@ module.exports = {
   apps: [
     {
       name: "pde_ui",
-      script: "npx",
-      args: "serve -s build -p 3000",
-      instances: 1,
-      exec_mode: "fork",
+      script: "npm",
+      args: "run start",
+      cwd: "/var/lib/jenkins/workspace/PDE_UI",
       env: {
         NODE_ENV: "production"
       }
