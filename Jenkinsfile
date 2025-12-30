@@ -8,15 +8,16 @@ pipeline {
     environment {
         NODE_ENV = 'production'
         SONAR_SCANNER_HOME = tool 'SonarScanner'
+        PM2_HOME = "/var/lib/jenkins/.pm2"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git credentialsId: 'github-cred',
-                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git',
-                    branch: 'main'
+                git branch: 'main',
+                    credentialsId: 'github-cred',
+                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
             }
         }
 
@@ -27,15 +28,16 @@ pipeline {
                     node -v
                     npm -v
 
-                    rm -rf node_modules package-lock.json
-                    npm install --legacy-peer-deps
+                    npm install
                 '''
             }
         }
 
-        stage('Build UI') {
+        stage('Build Application') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    npm run build
+                '''
             }
         }
 
@@ -62,34 +64,28 @@ pipeline {
             }
         }
 
-      stage('Deploy with PM2') {
-    steps {
-        sh '''
-            npm install -g pm2 serve
- 
-            pm2 delete pde_ui || true
- 
-            pm2 start ecosystem.config.js
-            pm2 save
-        '''
-    }
-}
+        stage('Deploy with PM2') {
+            steps {
+                sh '''
+                    pm2 delete pde_ui || true
+                    pm2 start ecosystem.config.js
+                    pm2 save
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo "✅ Build, Scan & Deployment Successful"
+            echo "✅ Build, Sonar & Deployment Successful"
         }
         failure {
-            echo "❌ Pipeline Failed"
+            echo "❌ Build or Deployment Failed"
         }
         always {
             echo "Job: ${env.JOB_NAME}"
-            echo "Build: ${env.BUILD_NUMBER}"
+            echo "Build Number: ${env.BUILD_NUMBER}"
             echo "Status: ${currentBuild.currentResult}"
         }
     }
 }
-
-
-
