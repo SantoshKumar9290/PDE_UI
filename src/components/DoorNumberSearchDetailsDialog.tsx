@@ -41,6 +41,45 @@ const PopupDialog: React.FC<Props> = ({
   data,
   autoCloseEmpty = false,
 }) => {
+  return <>
+  </>
+}
+export default PopupDialog
+
+{/*
+type Owner = {
+  ownerName: string;
+  mobileNo: string;
+};
+
+type DataRow = {
+  ulbCode: string;
+  assessmentNo: string;
+  active: boolean;
+  underworkflow: boolean;
+  houseNo: string;
+  exempted: boolean;
+  ownerDetails: Owner[];
+  regdDocNo: string | null;
+  regdDocDate: string;
+  category: string;
+};
+
+interface Props {
+  show: boolean;
+  onClose: () => void;
+  onSubmit: Function;
+  data: DataRow[];
+  autoCloseEmpty?: boolean;
+}
+
+const PopupDialog: React.FC<Props> = ({
+  show,
+  onClose,
+  onSubmit,
+  data,
+  autoCloseEmpty = false,
+}) => {
   const dispatch = useAppDispatch();
   const [selectedRow, setSelectedRow] = useState<any>({});
   const ShowAlert = (type, message) => { dispatch(PopupAction({ enable: true, type: type, message: message, autoHide: false, hideCancelButton: false})); }
@@ -92,7 +131,7 @@ const PopupDialog: React.FC<Props> = ({
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    page,
+    // page,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -104,10 +143,10 @@ const PopupDialog: React.FC<Props> = ({
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 20 } as any,
+      initialState: { pageIndex: 0, pageSize: 20 },
     },
     usePagination
-  ) as any;
+  );
 
   const onNo = () => {
     ShowAlert('info',"Ensure that there is no PTIN for the entered Door Number, otherwise it will lead to legal complications.",);
@@ -149,7 +188,7 @@ const PopupDialog: React.FC<Props> = ({
                       ))}
                     </thead>
                     <tbody {...getTableBodyProps()}>
-                      {page.map((row,index) => {
+                      {/* {page.map((row,index) => {
                         prepareRow(row);
                         return (
                           <tr key={index}
@@ -161,68 +200,69 @@ const PopupDialog: React.FC<Props> = ({
                             ))}
                           </tr>
                         );
-                      })}
-                    </tbody>
-                  </Table>
-                </div>
-                <div className="paginationMain p-2">
-                  <ul className="pagination d-flex align-items-center justify-content-end m-0">
-                    <li className="PageItems me-3">
-                      Items per page:{" "}
-                      <select
-                        className="text-center"
-                        value={pageSize}
-                        onChange={(e) => setPageSize(Number(e.target.value))}
-                      >
-                        {[20, 30, 50].map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    </li>
-                    <li className="pagesList me-2">
-                      <a className="page-link">Page {pageIndex + 1} of {pageOptions.length}</a>
-                    </li>
-                    <li className="paginationPrev pageNav me-1" onClick={previousPage}>
-                      <a className="page-link">
-                        <Image alt="Prev" width={15} height={18} src="/PDE/images/pagination-prev.jpg" />
-                      </a>
-                    </li>
-                    <li className="paginationNext pageNav" onClick={nextPage}>
-                      <a className="page-link">
-                        <Image alt="Next" width={15} height={18} src="/PDE/images/pagination-next.jpg" />
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </>
-            ) : (
-              <div
-                className="d-flex justify-content-center align-items-center text-center p-4 fs-5 overflow-auto"
-                style={{ height: "200px" }}
-              >
-                No data available
-              </div>
-            )}
-          </div>
+                      })} */}
+//                     </tbody>
+//                   </Table>
+//                 </div>
+//                 <div className="paginationMain p-2">
+//                   <ul className="pagination d-flex align-items-center justify-content-end m-0">
+//                     <li className="PageItems me-3">
+//                       Items per page:{" "}
+//                       <select
+//                         className="text-center"
+//                         value={pageSize}
+//                         onChange={(e) => setPageSize(Number(e.target.value))}
+//                       >
+//                         {[20, 30, 50].map((size) => (
+//                           <option key={size} value={size}>
+//                             {size}
+//                           </option>
+//                         ))}
+//                       </select>
+//                     </li>
+//                     <li className="pagesList me-2">
+//                       <a className="page-link">Page {pageIndex + 1} of {pageOptions.length}</a>
+//                     </li>
+//                     <li className="paginationPrev pageNav me-1" onClick={previousPage}>
+//                       <a className="page-link">
+//                         <Image alt="Prev" width={15} height={18} src="/PDE/images/pagination-prev.jpg" />
+//                       </a>
+//                     </li>
+//                     <li className="paginationNext pageNav" onClick={nextPage}>
+//                       <a className="page-link">
+//                         <Image alt="Next" width={15} height={18} src="/PDE/images/pagination-next.jpg" />
+//                       </a>
+//                     </li>
+//                   </ul>
+//                 </div>
+//               </>
+//             ) : (
+//               <div
+//                 className="d-flex justify-content-center align-items-center text-center p-4 fs-5 overflow-auto"
+//                 style={{ height: "200px" }}
+//               >
+//                 No data available
+//               </div>
+//             )}
+//           </div>
 
-          <div className={`modal-footer sticky-bottom ${styles["sticky-bottom"]}`}>
-            {data.length > 0 && (
-              <>
-                <button type="button" className={`btn ${styles["btn-submit"]}`} onClick={onNo}>
-                  No
-                </button>
-                <button type="button" className={`btn ${styles["btn-submit"]}`} onClick={() => onYes(selectedRow)}>
-                  Yes
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//           <div className={`modal-footer sticky-bottom ${styles["sticky-bottom"]}`}>
+//             {data.length > 0 && (
+//               <>
+//                 <button type="button" className={`btn ${styles["btn-submit"]}`} onClick={onNo}>
+//                   No
+//                 </button>
+//                 <button type="button" className={`btn ${styles["btn-submit"]}`} onClick={() => onYes(selectedRow)}>
+//                   Yes
+//                 </button>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+/*}
 
-export default PopupDialog;
+export default PopupDialog
