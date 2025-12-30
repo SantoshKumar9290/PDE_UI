@@ -2,12 +2,10 @@ module.exports = {
   apps: [
     {
       name: "pde_ui",
-      script: "serve",
-      args: "-s build -l 3000",
-      exec_mode: "fork",
+      script: "npx",
+      args: "serve -s build -p 3000",
       instances: 1,
-      autorestart: true,
-      watch: false,
+      exec_mode: "fork",
       env: {
         NODE_ENV: "production"
       }
