@@ -3,7 +3,12 @@ module.exports = {
     {
       name: "pde_ui",
       script: "serve",
-      args: "-s build -l 3000", // serve the build folder on port 3000
+      args: "-s build -l 3000",
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "300M",
       env: {
         NODE_ENV: "production"
       }
