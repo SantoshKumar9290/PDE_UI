@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "../../styles/components/PopupDialog.module.scss";
 import { Table } from "react-bootstrap";
-import { useTable, usePagination } from "react-table";
+import { useTable, usePagination ,Column,TableInstance} from "react-table";
 import Image from "next/image";
 import { PopupAction } from "../redux/commonSlice";
 import { useAppDispatch } from "../redux/hooks";
@@ -104,10 +104,10 @@ const PopupDialog: React.FC<Props> = ({
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 20 },
+      initialState: { pageIndex: 0, pageSize: 20 } as any,
     },
     usePagination
-  );
+  ) as any;
 
   const onNo = () => {
     ShowAlert('info',"Ensure that there is no PTIN for the entered Door Number, otherwise it will lead to legal complications.",);
