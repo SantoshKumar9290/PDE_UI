@@ -1,4 +1,4 @@
-name: CI-CD Deploy
+name: Deploy Application
 
 on:
   push:
@@ -6,32 +6,19 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout source code
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      - name: Install Dependencies
+        run: npm install
 
-      # Install dependencies
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+      - name: Build App
+        run: npm run build
 
-      # Run SonarQube Scan
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: http://117.250.201.43:9000
-
-      # Deploy to server via SSH
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -41,5 +28,6 @@ jobs:
           script: |
             cd /var/www/PDE_UI
             git pull origin main
-            npm install --legacy-peer-deps
+            npm install
+            npm run build
             pm2 reload ecosystem.config.js --env production
