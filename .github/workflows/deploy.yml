@@ -1,4 +1,4 @@
-name: CI-CD
+name: Build
 
 on:
   push:
@@ -7,42 +7,24 @@ on:
 
 jobs:
   build:
+    name: Build and Analyze
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Verify SonarQube Connectivity
-        run: curl http://117.250.201.43:9000/api/system/status
+          fetch-depth: 0  # Required for accurate Sonar analysis
 
       - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          npx sonar-scanner \
-            -Dsonar.projectKey=pde_ui \
-            -Dsonar.projectName=pde_ui \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=http://117.250.201.43:9000 \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: 117.201.250.43
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /var/www/PDE_UI
-            git pull origin main
-            npm install --legacy-peer-deps
-            pm2 reload ecosystem.config.js --env production
+      # Optional: Fail pipeline if Quality Gate fails
+      # - name: SonarQube Quality Gate
+      #   uses: sonarsource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
