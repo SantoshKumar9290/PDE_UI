@@ -1,4 +1,4 @@
-name: CI-CD-PM2-Deploy
+name: CI-CD-PM2-DEPLOY
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    name: Build → SonarQube → Deploy
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
@@ -19,7 +20,8 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          npm install --legacy-peer-deps
 
       - name: SonarQube Scan
         env:
@@ -31,14 +33,9 @@ jobs:
             -Dsonar.host.url=http://10.10.120.20:9000 \
             -Dsonar.token=$SONAR_TOKEN
 
-      - name: Deploy to Ubuntu Server (PM2)
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: 10.10.120.190
-          username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /var/www/PDE_UI
-            git pull origin main
-            npm install --legacy-peer-deps
-            pm2 reload ecosystem.config.js --env production
+      - name: Deploy Application using PM2
+        run: |
+          cd /var/www/PDE_UI
+          git pull origin main
+          npm install --legacy-peer-deps
+          pm2 reload ecosystem.config.js --env production
