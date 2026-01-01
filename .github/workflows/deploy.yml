@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -18,17 +18,19 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install --legacy-peer-deps
 
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           npx sonar-scanner \
-            -Dsonar.projectKey=pde_ui \
+            -Dsonar.projectKey=github-actions \
+            -Dsonar.projectName=github-actions \
             -Dsonar.sources=. \
-            -Dsonar.host.url=http://117.201.250.43:9000 \
+            -Dsonar.host.url=$SONAR_HOST_URL \
             -Dsonar.token=$SONAR_TOKEN
 
       - name: Deploy to Server
@@ -37,7 +39,6 @@ jobs:
           host: 117.201.250.43
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
           script: |
             cd /var/www/PDE_UI
             git pull origin main
