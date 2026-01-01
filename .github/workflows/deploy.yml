@@ -34,9 +34,10 @@ jobs:
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: 10.10.120.190
+          host: 117.201.250.43
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
           script: |
             cd /var/www/PDE_UI
             git pull origin main
