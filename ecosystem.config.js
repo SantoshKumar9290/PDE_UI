@@ -1,13 +1,17 @@
 module.exports = {
   apps: [
     {
-      name: "pde_ui",
-      cwd: "/var/lib/jenkins/workspace/PDE_UI",
+      name: "pde-ui",
       script: "npm",
-      args: "run start:pm2",
+      args: "start",
+      cwd: "/var/www/PDE_UI",
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "300M",
       env: {
-        NODE_ENV: "production"
-      }
-    }
-  ]
+        NODE_ENV: "production",
+      },
+    },
+  ],
 };
