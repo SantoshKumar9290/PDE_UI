@@ -1,4 +1,4 @@
-name: CI-CD-PM2-DEPLOY
+name: CI-CD-PM2
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    name: Build → SonarQube → Deploy
     runs-on: self-hosted
 
     steps:
@@ -20,8 +19,7 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: |
-          npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: SonarQube Scan
         env:
@@ -30,10 +28,9 @@ jobs:
           npx sonar-scanner \
             -Dsonar.projectKey=pde_ui \
             -Dsonar.sources=. \
-            -Dsonar.host.url=http://10.10.120.20:9000 \
             -Dsonar.token=$SONAR_TOKEN
 
-      - name: Deploy Application using PM2
+      - name: Deploy Application (PM2)
         run: |
           cd /var/www/PDE_UI
           git pull origin main
