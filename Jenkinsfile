@@ -4,31 +4,30 @@ pipeline {
     environment {
         APP_NAME = 'PDE-UI'
         APP_PORT = '2000'
+        TRIVY_CACHE_DIR = '/tmp/trivy-cache'
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Check Node') {
+        stage('Node Check') {
             steps {
                 sh '''
-                  which node
-                  node -v
-                  npm -v
+                which node
+                node -v
+                npm -v
                 '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                  npm install --legacy-peer-deps
-                '''
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
@@ -37,9 +36,7 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarScanner'
                     withSonarQubeEnv('SONARQUBE-PDE-FRONTEND') {
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner
-                        """
+                        sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
@@ -56,24 +53,31 @@ pipeline {
         stage('Trivy Security Scan') {
             steps {
                 sh '''
-                trivy fs \
+                echo "===== TRIVY SECURITY SCAN ====="
+                mkdir -p trivy-reports
+
+                trivy fs . \
+                  --cache-dir $TRIVY_CACHE_DIR \
                   --severity HIGH,CRITICAL \
+                  --format table \
+                  --output trivy-reports/trivy.txt
+
+                trivy fs . \
+                  --cache-dir $TRIVY_CACHE_DIR \
+                  --severity CRITICAL \
                   --exit-code 1 \
-                  --no-progress \
-                  .
+                  --no-progress .
                 '''
             }
         }
 
         stage('Build Frontend') {
             steps {
-                sh '''
-                  npm run build
-                '''
+                sh 'npm run build'
             }
         }
 
-        stage('PM2 Start') {
+        stage('PM2 Deploy') {
             steps {
                 sh '''
                 pm2 delete ${APP_NAME} || true
@@ -83,22 +87,22 @@ pipeline {
             }
         }
 
-        stage('UI Health Check') {
+        stage('Health Check') {
             steps {
-                sh '''
-                curl -f http://localhost:${APP_PORT}
-                '''
+                sh "curl -f http://localhost:${APP_PORT}"
             }
         }
     }
 
     post {
+        always {
+            archiveArtifacts artifacts: 'trivy-reports/*', fingerprint: true
+        }
         success {
-            echo "✅ PDE-FRONTEND deployed successfully (Sonar + Trivy)"
+            echo "✅ SUCCESS: SonarQube + Trivy + PM2 deployment completed"
         }
         failure {
-            echo "❌ Pipeline failed"
+            echo "❌ FAILED: Check Sonar or Trivy reports"
         }
     }
 }
-
