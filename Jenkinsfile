@@ -1,15 +1,8 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node18'
-    }
-
     environment {
-        // SonarQube
         SONAR_TOKEN = credentials('SONAR_TOKEN')
-
-        // App details
         APP_NAME = 'PDE-UI'
         APP_PORT = '3000'
     }
@@ -22,11 +15,29 @@ pipeline {
             }
         }
 
+        stage('Check Node') {
+            steps {
+                sh '''
+                  which node
+                  node -v
+                  npm -v
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                  npm install --force
+                '''
+            }
+        }
+
         stage('SonarQube Scan') {
             steps {
                 script {
                     def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('SONARQUBE-PDE-FRONTEND') {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \
                         -Dsonar.login=${SONAR_TOKEN}
@@ -52,14 +63,6 @@ pipeline {
                   --exit-code 1 \
                   --no-progress \
                   .
-                '''
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                npm install --force
                 '''
             }
         }
@@ -90,7 +93,7 @@ pipeline {
         stage('UI Health Check') {
             steps {
                 sh '''
-                curl -f http://localhost:${APP_PORT} || exit 1
+                curl -f http://localhost:${APP_PORT}
                 '''
             }
         }
