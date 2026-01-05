@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         APP_NAME = 'PDE-UI'
-        APP_PORT = '3000'
+        APP_PORT = '2000'
     }
 
     stages {
@@ -28,7 +28,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                  npm install --force
+                  npm install --legacy-peer-deps
                 '''
             }
         }
@@ -40,6 +40,8 @@ pipeline {
                     withSonarQubeEnv('SONARQUBE-PDE-FRONTEND') {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=PDE-FRONTEND \
+                        -Dsonar.sources=. \
                         -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
@@ -55,6 +57,14 @@ pipeline {
             }
         }
 
+        stage('Build Frontend') {
+            steps {
+                sh '''
+                  npm run build
+                '''
+            }
+        }
+
         stage('Trivy Security Scan') {
             steps {
                 sh '''
@@ -67,15 +77,7 @@ pipeline {
             }
         }
 
-        stage('Build Frontend') {
-            steps {
-                sh '''
-                npm run build
-                '''
-            }
-        }
-
-        stage('PM2 Start (Cluster Mode)') {
+        stage('PM2 Start') {
             steps {
                 sh '''
                 pm2 delete ${APP_NAME} || true
@@ -101,10 +103,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ PDE-UI deployed successfully (Sonar + Trivy + PM2 Cluster)"
+            echo "✅ PDE-UI deployed successfully"
         }
         failure {
-            echo "❌ Pipeline failed – check Jenkins logs"
+            echo "❌ Pipeline failed – check logs"
         }
     }
 }
