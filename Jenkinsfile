@@ -17,10 +17,9 @@ pipeline {
         stage('Check Node') {
             steps {
                 sh '''
-                echo "===== NODE CHECK ====="
-                which node
-                node -v
-                npm -v
+                  which node
+                  node -v
+                  npm -v
                 '''
             }
         }
@@ -28,8 +27,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                echo "===== INSTALL DEPENDENCIES ====="
-                npm install --legacy-peer-deps
+                  npm install --legacy-peer-deps
                 '''
             }
         }
@@ -39,10 +37,9 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarScanner'
                     withSonarQubeEnv('SONARQUBE-PDE-FRONTEND') {
-                        sh '''
-                        echo "===== SONARQUBE SCAN ====="
-                        '"${scannerHome}"'/bin/sonar-scanner
-                        '''
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner
+                        """
                     }
                 }
             }
@@ -59,18 +56,11 @@ pipeline {
         stage('Trivy Security Scan') {
             steps {
                 sh '''
-                echo "############################################"
-                echo "####### TRIVY SECURITY SCAN STARTED ########"
-                echo "############################################"
-
-                which trivy
-                trivy --version
-
-                trivy fs . --severity HIGH,CRITICAL --no-progress || true
-
-                echo "############################################"
-                echo "####### TRIVY SECURITY SCAN FINISHED ########"
-                echo "############################################"
+                trivy fs \
+                  --severity HIGH,CRITICAL \
+                  --exit-code 1 \
+                  --no-progress \
+                  .
                 '''
             }
         }
@@ -78,8 +68,7 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 sh '''
-                echo "===== BUILD FRONTEND ====="
-                npm run build
+                  npm run build
                 '''
             }
         }
@@ -87,7 +76,6 @@ pipeline {
         stage('PM2 Start') {
             steps {
                 sh '''
-                echo "===== PM2 START ====="
                 pm2 delete ${APP_NAME} || true
                 pm2 start npm --name "${APP_NAME}" -- start -i max
                 pm2 save
@@ -98,7 +86,6 @@ pipeline {
         stage('UI Health Check') {
             steps {
                 sh '''
-                echo "===== HEALTH CHECK ====="
                 curl -f http://localhost:${APP_PORT}
                 '''
             }
@@ -107,10 +94,11 @@ pipeline {
 
     post {
         success {
-            echo "✅ PIPELINE SUCCESS (SonarQube + Trivy + Deploy)"
+            echo "✅ PDE-FRONTEND deployed successfully (Sonar + Trivy)"
         }
         failure {
-            echo "❌ PIPELINE FAILED"
+            echo "❌ Pipeline failed"
         }
     }
 }
+
