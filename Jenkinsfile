@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('SONAR_TOKEN')
         APP_NAME = 'PDE-UI'
         APP_PORT = '2000'
     }
@@ -39,10 +38,7 @@ pipeline {
                     def scannerHome = tool 'SonarScanner'
                     withSonarQubeEnv('SONARQUBE-PDE-FRONTEND') {
                         sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=PDE-FRONTEND \
-                        -Dsonar.sources=. \
-                        -Dsonar.login=${SONAR_TOKEN}
+                        ${scannerHome}/bin/sonar-scanner
                         """
                     }
                 }
@@ -54,14 +50,6 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                sh '''
-                  npm run build
-                '''
             }
         }
 
@@ -77,16 +65,19 @@ pipeline {
             }
         }
 
+        stage('Build Frontend') {
+            steps {
+                sh '''
+                  npm run build
+                '''
+            }
+        }
+
         stage('PM2 Start') {
             steps {
                 sh '''
                 pm2 delete ${APP_NAME} || true
-
-                pm2 start npm \
-                  --name "${APP_NAME}" \
-                  -- start \
-                  -i max
-
+                pm2 start npm --name "${APP_NAME}" -- start -i max
                 pm2 save
                 '''
             }
@@ -103,10 +94,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ PDE-UI deployed successfully"
+            echo "✅ PDE-FRONTEND deployed successfully (Sonar + Trivy)"
         }
         failure {
-            echo "❌ Pipeline failed – check logs"
+            echo "❌ Pipeline failed"
         }
     }
 }
