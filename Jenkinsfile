@@ -2,74 +2,95 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'Node16'
+        nodejs 'Node18'
     }
 
     environment {
-        NODE_ENV = 'production'
-        SONAR_SCANNER_HOME = tool 'SonarScanner'
-        PM2_HOME = "/var/lib/jenkins/.pm2"
+        // SonarQube
+        SONAR_TOKEN = credentials('SONAR_TOKEN')
+
+        // App details
+        APP_NAME = 'PDE-UI'
+        APP_PORT = '3000'
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'github-cred',
-                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
+                checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage('SonarQube Scan') {
             steps {
-                sh '''
-                    echo "Node Version:"
-                    node -v
-                    npm -v
-
-                    npm install
-                '''
-            }
-        }
-
-        stage('Build Application') {
-            steps {
-                sh '''
-                    npm run build
-                '''
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQubeServer') {
-                    sh '''
-                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=pde_ui \
-                        -Dsonar.projectName=pde_ui \
-                        -Dsonar.sources=. \
-                        -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    '''
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 3, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
         }
 
-        stage('Deploy with PM2') {
+        stage('Trivy Security Scan') {
             steps {
                 sh '''
-                    pm2 delete pde_ui || true
-                    pm2 start ecosystem.config.js
-                    pm2 save
+                trivy fs \
+                  --severity HIGH,CRITICAL \
+                  --exit-code 1 \
+                  --no-progress \
+                  .
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                npm install --force
+                '''
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                sh '''
+                npm run build
+                '''
+            }
+        }
+
+        stage('PM2 Start (Cluster Mode)') {
+            steps {
+                sh '''
+                pm2 delete ${APP_NAME} || true
+
+                pm2 start npm \
+                  --name "${APP_NAME}" \
+                  -- start \
+                  -i max
+
+                pm2 save
+                '''
+            }
+        }
+
+        stage('UI Health Check') {
+            steps {
+                sh '''
+                curl -f http://localhost:${APP_PORT} || exit 1
                 '''
             }
         }
@@ -77,15 +98,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build, Sonar & Deployment Successful"
+            echo "✅ PDE-UI deployed successfully (Sonar + Trivy + PM2 Cluster)"
         }
         failure {
-            echo "❌ Build or Deployment Failed"
-        }
-        always {
-            echo "Job: ${env.JOB_NAME}"
-            echo "Build Number: ${env.BUILD_NUMBER}"
-            echo "Status: ${currentBuild.currentResult}"
+            echo "❌ Pipeline failed – check Jenkins logs"
         }
     }
 }
