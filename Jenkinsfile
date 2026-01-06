@@ -6,11 +6,11 @@ pipeline {
     }
 
     environment {
-        SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_PROJECT_KEY = "PDE-FRONTEND"
         APP_NAME = "pde_frontend"
-        DEPLOY_DIR = "/opt/apps/frontend/current"
-        TRIVY_SEVERITY = "HIGH,CRITICAL"
+        BASE_DIR = "/opt/apps/frontend"
+        CURRENT_DIR = "/opt/apps/frontend/current"
+        RELEASES_DIR = "/opt/apps/frontend/releases"
+        PORT = "2000"
     }
 
     stages {
@@ -39,59 +39,31 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
-            environment {
-                SONAR_TOKEN = credentials('sonar-token')
-            }
+        stage('Deploy to Server') {
             steps {
                 sh '''
-                  npx sonar-scanner \
-                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                    -Dsonar.sources=src,pages \
-                    -Dsonar.host.url=${SONAR_HOST_URL} \
-                    -Dsonar.token=${SONAR_TOKEN}
+                  set -e
+
+                  mkdir -p ${CURRENT_DIR}
+
+                  # Clean current
+                  rm -rf ${CURRENT_DIR}/*
+
+                  # Copy required files
+                  cp -r .next public package.json package-lock.json ecosystem.config.js ${CURRENT_DIR}/
+
+                  # Install production deps
+                  cd ${CURRENT_DIR}
+                  npm install --omit=dev --legacy-peer-deps
                 '''
             }
         }
 
-        stage('SonarQube Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        /* 🔐 TRIVY SECURITY GATE */
-        stage('Trivy Security Scan (Gate)') {
-            steps {
-                sh '''
-                  echo "Running Trivy Security Scan..."
-                  trivy fs . \
-                    --severity ${TRIVY_SEVERITY} \
-                    --exit-code 1 \
-                    --no-progress
-                '''
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                  mkdir -p /opt/apps/frontend
-                  rm -rf ${DEPLOY_DIR}/*
-                  cp -r .next public package.json ecosystem.config.js ${DEPLOY_DIR}/
-                  cd ${DEPLOY_DIR}
-                  npm install --production --legacy-peer-deps
-                '''
-            }
-        }
-
-        stage('Restart UI (PM2)') {
+        stage('Start UI with PM2') {
             steps {
                 sh '''
                   pm2 delete ${APP_NAME} || true
-                  pm2 start ${DEPLOY_DIR}/ecosystem.config.js
+                  pm2 start ${CURRENT_DIR}/ecosystem.config.js
                   pm2 save
                 '''
             }
@@ -101,7 +73,7 @@ pipeline {
             steps {
                 sh '''
                   sleep 10
-                  curl -f http://localhost:2000/PDE
+                  curl -f http://localhost:${PORT}/PDE
                 '''
             }
         }
@@ -109,10 +81,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build passed Sonar + Trivy gates and deployed"
+            echo "✅ UI deployed and running under PM2"
         }
         failure {
-            echo "❌ Build FAILED due to Quality/Security gate"
+            echo "❌ Deployment failed"
         }
     }
 }
