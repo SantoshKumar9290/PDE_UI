@@ -1,17 +1,12 @@
 module.exports = {
   apps: [
     {
-      name: "PDE-UI",
-      script: "npm",
-      args: "start",
-      cwd: "/var/www/PDE_UI",
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: "500M",
+      name: "pde_frontend",
+      script: "node_modules/.bin/serve",
+      args: "-s /opt/apps/frontend/current -l 3000",
+      exec_mode: "fork",
       env: {
-        NODE_ENV: "production",
-        PORT: 3000
+        NODE_ENV: "production"
       }
     }
   ]
