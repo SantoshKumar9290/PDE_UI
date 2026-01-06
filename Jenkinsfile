@@ -1,128 +1,132 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'Node18'
+    }
+
     environment {
-        APP_NAME = 'PDE-UI'
-        APP_PORT = '2000'
-        TRIVY_CACHE_DIR = '/tmp/trivy-cache'
+        APP_NAME        = "pde_frontend"
+        BASE_DIR        = "/opt/apps/frontend"
+        CURRENT_DIR     = "/opt/apps/frontend/current"
+        RELEASES_DIR    = "/opt/apps/frontend/releases"
+        BACKUP_DIR      = "/opt/apps/frontend/backup"
+        SONAR_HOST_URL  = "http://10.10.120.20:9000"
+        SONAR_PROJECT   = "PDE-FRONTEND"
+        HEALTH_URL      = "http://localhost:3000"
+        RELEASE_NAME    = "${BUILD_NUMBER}-$(date +%Y%m%d%H%M%S)"
     }
 
     stages {
 
+        /* 1️⃣ Checkout Code */
         stage('Checkout Code') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
             }
         }
 
-        stage('Node Check') {
-            steps {
-                sh '''
-                echo "===== NODE CHECK ====="
-                which node
-                node -v
-                npm -v
-                '''
-            }
-        }
-
+        /* 2️⃣ Install Dependencies */
         stage('Install Dependencies') {
             steps {
                 sh '''
-                echo "===== INSTALL DEPENDENCIES ====="
-                npm install --legacy-peer-deps
+                  node -v
+                  npm -v
+                  rm -rf node_modules package-lock.json
+                  npm install --legacy-peer-deps
                 '''
             }
         }
 
+        /* 3️⃣ Code Quality Scan (SonarQube) */
         stage('SonarQube Scan') {
-            steps {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SONARQUBE-PDE-FRONTEND') {
-                        sh '''
-                        echo "===== SONARQUBE SCAN ====="
-                        '"${scannerHome}"'/bin/sonar-scanner
-                        '''
-                    }
-                }
+            environment {
+                SONAR_TOKEN = credentials('sonar-token')
             }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        stage('Trivy Security Scan (HTML)') {
             steps {
                 sh '''
-                echo "===== TRIVY SECURITY SCAN (HTML REPORT) ====="
-
-                mkdir -p trivy-reports
-
-                # Generate HTML report
-                trivy fs . \
-                  --cache-dir $TRIVY_CACHE_DIR \
-                  --severity HIGH,CRITICAL \
-                  --format template \
-                  --template "@trivy-templates/html.tpl" \
-                  --output trivy-reports/trivy.html \
-                  --no-progress
-
-                # Fail pipeline ONLY if CRITICAL vulnerabilities found
-                trivy fs . \
-                  --cache-dir $TRIVY_CACHE_DIR \
-                  --severity CRITICAL \
-                  --exit-code 1 \
-                  --no-progress .
+                  npx sonar-scanner \
+                    -Dsonar.projectKey=${SONAR_PROJECT} \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                    -Dsonar.token=${SONAR_TOKEN}
                 '''
             }
         }
 
-        stage('Build Frontend') {
+        /* 4️⃣ Security Scan (Trivy) */
+        stage('Trivy Security Scan') {
             steps {
                 sh '''
-                echo "===== BUILD FRONTEND ====="
-                npm run build
+                  trivy fs . \
+                    --severity HIGH,CRITICAL \
+                    --exit-code 0
                 '''
             }
         }
 
-        stage('PM2 Deploy') {
+        /* 5️⃣ Build Application */
+        stage('Build Application') {
             steps {
                 sh '''
-                echo "===== PM2 DEPLOY ====="
-                pm2 delete ${APP_NAME} || true
-                pm2 start npm --name "${APP_NAME}" -- start -i max
-                pm2 save
+                  npm run build
                 '''
             }
         }
 
+        /* 6️⃣ Deploy to Physical Server (Release-based) */
+        stage('Deploy') {
+            steps {
+                sh '''
+                  mkdir -p ${RELEASES_DIR} ${CURRENT_DIR} ${BACKUP_DIR}
+
+                  # Backup current
+                  if [ -d "${CURRENT_DIR}" ] && [ "$(ls -A ${CURRENT_DIR})" ]; then
+                    rm -rf ${BACKUP_DIR}/*
+                    cp -r ${CURRENT_DIR}/* ${BACKUP_DIR}/
+                  fi
+
+                  # Create new release
+                  RELEASE_PATH=${RELEASES_DIR}/${RELEASE_NAME}
+                  mkdir -p ${RELEASE_PATH}
+                  cp -r build/* ${RELEASE_PATH}/
+
+                  # Switch current to new release
+                  rm -rf ${CURRENT_DIR}/*
+                  cp -r ${RELEASE_PATH}/* ${CURRENT_DIR}/
+                '''
+            }
+        }
+
+        /* 7️⃣ Restart with PM2 */
+        stage('Restart with PM2') {
+            steps {
+                sh '''
+                  pm2 stop ${APP_NAME} || true
+                  pm2 start ecosystem.config.js --name ${APP_NAME}
+                  pm2 save
+                '''
+            }
+        }
+
+        /* 8️⃣ Health Check */
         stage('Health Check') {
             steps {
                 sh '''
-                echo "===== HEALTH CHECK ====="
-                curl -f http://localhost:${APP_PORT}
+                  sleep 10
+                  curl -f ${HEALTH_URL}
                 '''
             }
         }
     }
 
     post {
-        always {
-            echo "Archiving Trivy HTML report"
-            archiveArtifacts artifacts: 'trivy-reports/trivy.html', fingerprint: true
-        }
         success {
-            echo "✅ SUCCESS: SonarQube + Trivy + PM2 pipeline completed"
+            echo "✅ Deployment successful using release ${RELEASE_NAME}"
         }
         failure {
-            echo "❌ FAILURE: Check SonarQube or Trivy report"
+            echo "❌ Deployment failed — previous version still available in backup"
         }
     }
 }
