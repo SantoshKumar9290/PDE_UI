@@ -6,12 +6,11 @@ pipeline {
     }
 
     environment {
+        SONAR_HOST_URL = "http://10.10.120.20:9000"
+        SONAR_PROJECT_KEY = "PDE-FRONTEND"
         APP_NAME = "pde_frontend"
-        BASE_DIR = "/opt/apps/frontend"
-        CURRENT_DIR = "/opt/apps/frontend/current"
-        RELEASES_DIR = "/opt/apps/frontend/releases"
-        BACKUP_DIR = "/opt/apps/frontend/backup"
-        PORT = "2000"
+        DEPLOY_DIR = "/opt/apps/frontend/current"
+        TRIVY_SEVERITY = "HIGH,CRITICAL"
     }
 
     stages {
@@ -40,37 +39,59 @@ pipeline {
             }
         }
 
-        stage('Deploy & Install Prod Deps') {
+        stage('SonarQube Scan') {
+            environment {
+                SONAR_TOKEN = credentials('sonar-token')
+            }
             steps {
                 sh '''
-                  set -e
-                  mkdir -p $CURRENT_DIR $RELEASES_DIR $BACKUP_DIR
-
-                  if [ "$(ls -A $CURRENT_DIR 2>/dev/null)" ]; then
-                    rm -rf $BACKUP_DIR/*
-                    cp -r $CURRENT_DIR/* $BACKUP_DIR/
-                  fi
-
-                  RELEASE_NAME=$(date +%Y%m%d%H%M%S)
-                  RELEASE_PATH=$RELEASES_DIR/$RELEASE_NAME
-                  mkdir -p $RELEASE_PATH
-
-                  cp -r .next public package.json package-lock.json ecosystem.config.js $RELEASE_PATH/
-
-                  cd $RELEASE_PATH
-                  npm install --production --legacy-peer-deps
-
-                  rm -rf $CURRENT_DIR/*
-                  cp -r $RELEASE_PATH/* $CURRENT_DIR/
+                  npx sonar-scanner \
+                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                    -Dsonar.sources=src,pages \
+                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                    -Dsonar.token=${SONAR_TOKEN}
                 '''
             }
         }
 
-        stage('Start UI with PM2') {
+        stage('SonarQube Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        /* 🔐 TRIVY SECURITY GATE */
+        stage('Trivy Security Scan (Gate)') {
+            steps {
+                sh '''
+                  echo "Running Trivy Security Scan..."
+                  trivy fs . \
+                    --severity ${TRIVY_SEVERITY} \
+                    --exit-code 1 \
+                    --no-progress
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                  mkdir -p /opt/apps/frontend
+                  rm -rf ${DEPLOY_DIR}/*
+                  cp -r .next public package.json ecosystem.config.js ${DEPLOY_DIR}/
+                  cd ${DEPLOY_DIR}
+                  npm install --production --legacy-peer-deps
+                '''
+            }
+        }
+
+        stage('Restart UI (PM2)') {
             steps {
                 sh '''
                   pm2 delete ${APP_NAME} || true
-                  pm2 start ${CURRENT_DIR}/ecosystem.config.js
+                  pm2 start ${DEPLOY_DIR}/ecosystem.config.js
                   pm2 save
                 '''
             }
@@ -80,7 +101,7 @@ pipeline {
             steps {
                 sh '''
                   sleep 10
-                  curl -f http://localhost:${PORT}/PDE
+                  curl -f http://localhost:2000/PDE
                 '''
             }
         }
@@ -88,10 +109,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ UI deployed and running under PM2"
+            echo "✅ Build passed Sonar + Trivy gates and deployed"
         }
         failure {
-            echo "❌ Deployment failed"
+            echo "❌ Build FAILED due to Quality/Security gate"
         }
     }
 }
