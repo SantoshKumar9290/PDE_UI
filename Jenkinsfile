@@ -50,7 +50,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:latest ."
+                sh """
+                    docker build -t ${DOCKER_IMAGE}:latest .
+                """
             }
         }
 
@@ -58,7 +60,10 @@ pipeline {
             steps {
                 sh """
                     docker rm -f pde_ui || true
-                    docker run -d --name pde_ui -p 3000:3000 ${DOCKER_IMAGE}:latest
+                    docker run -d \
+                        --name pde_ui \
+                        -p 3000:3000 \
+                        ${DOCKER_IMAGE}:latest
                 """
             }
         }
@@ -73,4 +78,3 @@ pipeline {
         }
     }
 }
-
