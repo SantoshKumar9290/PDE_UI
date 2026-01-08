@@ -8,7 +8,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
@@ -18,53 +17,48 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh """
-                    npm install
-                """
+                sh "npm install"
             }
         }
-    stage('Clean previous build') {
-    steps {
-        sh "rm -rf .next"
-    }
-}
+
+        stage('Clean previous build') {
+            steps {
+                sh "rm -rf .next"
+            }
+        }
 
         stage('Build Next.js App') {
             steps {
-                sh """
-                    npm run build
-                """
+                sh "npm run build"
             }
         }
 
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh """
+                    sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=PDE_UI \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN
-                    """
+                    '''
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                    docker build -t ${DOCKER_IMAGE}:latest .
-                """
+                sh "docker build -t ${DOCKER_IMAGE}:latest ."
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                sh """
+                sh '''
                     docker rm -f pde_ui || true
                     docker run -d --name pde_ui -p 3000:3000 ${DOCKER_IMAGE}:latest
-                """
+                '''
             }
         }
     }
@@ -78,4 +72,3 @@ pipeline {
         }
     }
 }
-
