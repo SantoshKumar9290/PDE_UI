@@ -3,11 +3,12 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_TOKEN = credentials('jenkins-token')   // FIXED HERE
         DOCKER_IMAGE = "pde_ui_app"
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
@@ -36,13 +37,13 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''
+                    sh """
                         sonar-scanner \
                         -Dsonar.projectKey=PDE_UI \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN
-                    '''
+                    """
                 }
             }
         }
@@ -55,10 +56,10 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                sh '''
+                sh """
                     docker rm -f pde_ui || true
                     docker run -d --name pde_ui -p 3000:3000 ${DOCKER_IMAGE}:latest
-                '''
+                """
             }
         }
     }
