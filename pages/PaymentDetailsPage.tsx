@@ -321,7 +321,7 @@ const PaymentDetailsPage = () => {
                                         {SelectedFeature.dateOfPayment ?
                                             <Col lg={3} md={6} xs={12}>
                                                 <TableText label={"Date of Payment [చెల్లించిన తేదీ]"} required={true} LeftSpace={false} />
-                                                <TableSelectDate max={(moment((maxDate)).format("YYYY-MM-DD"))} placeholder='Select Date' required={true} name={"dateOfPayment"} value={PaymentDetails.dateOfPayment} onChange={onChange} />
+                                                <TableSelectDate max={(moment(new Date(maxDate).toISOString()).format("YYYY-MM-DD"))} placeholder='Select Date' required={true} name={"dateOfPayment"} value={PaymentDetails.dateOfPayment} onChange={onChange} />
                                                 {/* <TableSelectDate placeholder='Select Date' required={true} name={'dateOfPayment'} value={PaymentDetails.dateOfPayment} onChange={onChange} /> */}
                                             </Col> : null}
                                         {SelectedFeature.checkNo ?

@@ -1389,7 +1389,7 @@ const GetstartedPage = () => {
 
     const validateStockHoldingId = async (id: any, date: any) => {
         setIsStackHoldingIdValidated(false);
-        let dateString = moment(date).format("DD-MM-YYYY");
+        let dateString = moment(new Date(date).toISOString()).format("DD-MM-YYYY");
         let result = await CallingAxios(VerifyStockHoldingId({stockid:`IN-AP${id}`, date: dateString}));
         if (result.status) {
             setPropertyDetails((prevState) => ({...prevState, stampPaperValue: result?.data?.CertificatesDetails?.DeficitStampDutyRs?.replace(/,/g, "")}));
