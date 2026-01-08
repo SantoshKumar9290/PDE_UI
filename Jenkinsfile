@@ -7,10 +7,6 @@ pipeline {
         DOCKER_IMAGE = "pde_ui_app"
     }
 
-    tools {
-        sonarScanner 'sonarscanner'
-    }
-
     stages {
 
         stage('Checkout Code') {
@@ -41,8 +37,14 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('Sonar-jenkins-token') {
+
+                    // Get sonar scanner path
+                    script {
+                        SONAR_SCANNER_HOME = tool 'sonarscanner'
+                    }
+
                     sh """
-                        ${tool 'sonarscanner'}/bin/sonar-scanner \
+                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=jenkins-token \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
@@ -70,7 +72,7 @@ pipeline {
 
     post {
         success {
-            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
+            echo "SUCCESS: Build + Sonar Scan + Docker Deploy Completed!"
         }
         failure {
             echo "FAILED: Check pipeline logs!"
