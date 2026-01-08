@@ -36,13 +36,13 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('<PUT_YOUR_SERVER_NAME_HERE>') {   // <<< CHANGE THIS ONLY
+                withSonarQubeEnv('Sonar-jenkins-token') {   // ✔ FIXED
                     sh """
                         sonar-scanner \
                         -Dsonar.projectKey=jenkins-token \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.token=$SONAR_TOKEN
+                        -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
