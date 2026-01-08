@@ -30,6 +30,7 @@ pipeline {
                 sh '''
                     echo "Running Next.js Build..."
                     npm run build
+                    npm start
                 '''
             }
         }
@@ -80,3 +81,4 @@ pipeline {
         }
     }
 }
+
