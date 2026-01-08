@@ -38,7 +38,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('Sonar-jenkins-token') {
                     sh """
-                        /opt/sonar-scanner/sonar-scanner/bin/sonar-scanner \
+                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
                         -Dsonar.projectKey=jenkins-token \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
@@ -73,3 +73,4 @@ pipeline {
         }
     }
 }
+
