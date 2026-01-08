@@ -8,11 +8,6 @@ pipeline {
         DOCKER_IMAGE = "pde_ui_app"
     }
 
-    tools {
-        // THIS MUST MATCH TOOL NAME IN JENKINS GLOBAL TOOL CONFIG
-        sonarScanner 'sonarscanner'  
-    }
-
     stages {
 
         stage('Checkout Code') {
@@ -43,8 +38,9 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('Sonar-jenkins-token') {
+
                     sh """
-                        ${tool 'sonarscanner'}/bin/sonar-scanner \
+                        /opt/sonar-scanner/bin/sonar-scanner \
                         -Dsonar.projectKey=$SONAR_PROJECT_KEY \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
@@ -72,10 +68,5 @@ pipeline {
 
     post {
         success {
-            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
+            echo "SUCCESS: Build + SonarQube + Docker Completed!"
         }
-        failure {
-            echo "FAILED: Check pipeline logs!"
-        }
-    }
-}
