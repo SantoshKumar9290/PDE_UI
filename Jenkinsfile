@@ -33,20 +33,11 @@ pipeline {
                 """
             }
         }
-        stage('Run Next.js App') {
-            steps {
-                sh """
-                    echo 'Running Next.js Application...'
-                    npm start 
-                """
-            }
-        }
 
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('sonar-server') {
                     sh """
-                        echo 'Running SonarQube Scanner...'
                         sonar-scanner \
                           -Dsonar.projectKey=PDE_UI \
                           -Dsonar.sources=. \
@@ -88,4 +79,3 @@ pipeline {
         }
     }
 }
-
