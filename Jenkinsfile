@@ -12,73 +12,71 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
+                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    echo "Installing npm packages..."
+                sh """
+                    echo 'Installing Node Modules...'
                     npm install
-                '''
+                """
             }
         }
 
         stage('Build Next.js App') {
             steps {
-                sh '''
-                    echo "Running Next.js Build..."
+                sh """
+                    echo 'Building Next.js Application...'
                     npm run build
-                    npm start
-                '''
+                """
             }
         }
 
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''
-                        echo "Running SonarQube Scanner..."
+                    sh """
+                        echo 'Running SonarQube Scanner...'
                         sonar-scanner \
-                        -Dsonar.projectKey=PDE_UI \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
+                          -Dsonar.projectKey=PDE_UI \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=$SONAR_HOST_URL \
+                          -Dsonar.login=$SONAR_TOKEN
+                    """
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                    echo "Building Docker Image..."
+                sh """
+                    echo 'Building Docker Image...'
                     docker build -t ${DOCKER_IMAGE}:latest .
-                '''
+                """
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                sh '''
-                    echo "Stopping old container if exists..."
+                sh """
+                    echo 'Stopping existing container if exists...'
                     docker rm -f pde_ui || true
 
-                    echo "Starting new container..."
+                    echo 'Starting new container...'
                     docker run -d --name pde_ui -p 3000:3000 ${DOCKER_IMAGE}:latest
-                '''
+                """
             }
         }
     }
 
     post {
         success {
-            echo "🎉 Build, Scan & Deployment Successful!"
+            echo "🎉 SUCCESS: Build + Sonar Scan + Docker Deploy Completed!"
         }
         failure {
-            echo "❌ Pipeline failed. Check logs!"
+            echo "❌ FAILED: Check pipeline logs!"
         }
     }
 }
-
