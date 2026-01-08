@@ -2,9 +2,15 @@ pipeline {
     agent any
 
     environment {
+        SONAR_PROJECT_KEY = "jenkins-token"
         SONAR_HOST_URL = "http://10.10.120.20:9000"
         SONAR_TOKEN = credentials('jenkins-token')
         DOCKER_IMAGE = "pde_ui_app"
+    }
+
+    tools {
+        // THIS MUST MATCH TOOL NAME IN JENKINS GLOBAL TOOL CONFIG
+        sonarScanner 'sonarscanner'  
     }
 
     stages {
@@ -12,7 +18,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
+                url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
             }
         }
 
@@ -37,15 +43,9 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('Sonar-jenkins-token') {
-
-                    // Get sonar scanner path
-                    script {
-                        SONAR_SCANNER_HOME = tool 'sonarscanner'
-                    }
-
                     sh """
-                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=jenkins-token \
+                        ${tool 'sonarscanner'}/bin/sonar-scanner \
+                        -Dsonar.projectKey=$SONAR_PROJECT_KEY \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN
@@ -72,7 +72,7 @@ pipeline {
 
     post {
         success {
-            echo "SUCCESS: Build + Sonar Scan + Docker Deploy Completed!"
+            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
         }
         failure {
             echo "FAILED: Check pipeline logs!"
