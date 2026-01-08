@@ -23,6 +23,11 @@ pipeline {
                 """
             }
         }
+    stage('Clean previous build') {
+    steps {
+        sh "rm -rf .next"
+    }
+}
 
         stage('Build Next.js App') {
             steps {
@@ -73,3 +78,4 @@ pipeline {
         }
     }
 }
+
