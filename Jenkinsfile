@@ -33,6 +33,14 @@ pipeline {
                 """
             }
         }
+        stage('Run Next.js App') {
+            steps {
+                sh """
+                    echo 'Running Next.js Application...'
+                    npm start 
+                """
+            }
+        }
 
         stage('SonarQube Scan') {
             steps {
@@ -80,3 +88,4 @@ pipeline {
         }
     }
 }
+
