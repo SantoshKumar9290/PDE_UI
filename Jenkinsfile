@@ -70,3 +70,5 @@ pipeline {
         success {
             echo "SUCCESS: Build + SonarQube + Docker Completed!"
         }
+        }
+
