@@ -1,38 +1,29 @@
-# ---------- Stage 1: Build ----------
+# ------------------ Stage 1: Build ------------------
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
-
-# Copy dependency files
-COPY package*.json ./
 
 # Install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the application files
-COPY backend/ backend/
+# Copy application code
+COPY . .
 
-# ---------- Stage 2: Runtime ----------
+# Build Next.js application
+RUN npm run build
+
+
+# ------------------ Stage 2: Production ------------------
 FROM node:18-alpine
 
-# Create app directory
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Copy only Next.js build output
+COPY --from=builder /app ./
 
-# Copy only necessary files from builder stage
-COPY --from=builder /app /app
-
-# Set ownership to appuser
-RUN chown -R appuser:appgroup /app
-
-# Switch to non-root user
-USER appuser
-
-# Expose port
+# Expose the port Next.js runs on
 EXPOSE 3000
 
-# Start the app
-CMD ["node", "backend/server.js"]
+# Start Next.js server
+CMD ["npm", "run", "start"]
