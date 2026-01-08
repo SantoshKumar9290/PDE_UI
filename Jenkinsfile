@@ -19,7 +19,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh """
-                    echo 'Installing Node Modules...'
                     npm install
                 """
             }
@@ -28,7 +27,6 @@ pipeline {
         stage('Build Next.js App') {
             steps {
                 sh """
-                    echo 'Building Next.js Application...'
                     npm run build
                 """
             }
@@ -39,10 +37,10 @@ pipeline {
                 withSonarQubeEnv('sonar-server') {
                     sh """
                         sonar-scanner \
-                          -Dsonar.projectKey=PDE_UI \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.projectKey=PDE_UI \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
@@ -51,7 +49,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh """
-                    echo 'Building Docker Image...'
                     docker build -t ${DOCKER_IMAGE}:latest .
                 """
             }
@@ -60,10 +57,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 sh """
-                    echo 'Stopping existing container if exists...'
                     docker rm -f pde_ui || true
-
-                    echo 'Starting new container...'
                     docker run -d --name pde_ui -p 3000:3000 ${DOCKER_IMAGE}:latest
                 """
             }
@@ -72,10 +66,10 @@ pipeline {
 
     post {
         success {
-            echo "🎉 SUCCESS: Build + Sonar Scan + Docker Deploy Completed!"
+            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
         }
         failure {
-            echo "❌ FAILED: Check pipeline logs!"
+            echo "FAILED: Check pipeline logs!"
         }
     }
 }
