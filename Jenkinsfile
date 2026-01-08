@@ -1,16 +1,10 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node18'
-    }
-
     environment {
-        APP_NAME = "pde_frontend"
-        BASE_DIR = "/opt/apps/frontend"
-        CURRENT_DIR = "/opt/apps/frontend/current"
-        RELEASES_DIR = "/opt/apps/frontend/releases"
-        PORT = "2000"
+        SONAR_HOST_URL = "http://10.10.120.20:9000"
+        SONAR_TOKEN = credentials('sonar-token')
+        DOCKER_IMAGE = "pde_ui_app"
     }
 
     stages {
@@ -18,62 +12,60 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
+                url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 sh '''
-                  rm -rf node_modules package-lock.json
-                  npm install --legacy-peer-deps
+                    echo "Installing npm packages..."
+                    npm install
                 '''
             }
         }
 
-        stage('Build Next.js') {
+        stage('Build Next.js App') {
             steps {
                 sh '''
-                  npm run build
+                    echo "Running Next.js Build..."
+                    npm run build
                 '''
             }
         }
 
-        stage('Deploy to Server') {
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh '''
+                        echo "Running SonarQube Scanner..."
+                        sonar-scanner \
+                        -Dsonar.projectKey=PDE_UI \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
             steps {
                 sh '''
-                  set -e
-
-                  mkdir -p ${CURRENT_DIR}
-
-                  # Clean current
-                  rm -rf ${CURRENT_DIR}/*
-
-                  # Copy required files
-                  cp -r .next public package.json package-lock.json ecosystem.config.js ${CURRENT_DIR}/
-
-                  # Install production deps
-                  cd ${CURRENT_DIR}
-                  npm install --omit=dev --legacy-peer-deps
+                    echo "Building Docker Image..."
+                    docker build -t ${DOCKER_IMAGE}:latest .
                 '''
             }
         }
 
-        stage('Start UI with PM2') {
+        stage('Run Docker Container') {
             steps {
                 sh '''
-                  pm2 delete ${APP_NAME} || true
-                  pm2 start ${CURRENT_DIR}/ecosystem.config.js
-                  pm2 save
-                '''
-            }
-        }
+                    echo "Stopping old container if exists..."
+                    docker rm -f pde_ui || true
 
-        stage('Health Check') {
-            steps {
-                sh '''
-                  sleep 10
-                  curl -f http://localhost:${PORT}/PDE
+                    echo "Starting new container..."
+                    docker run -d --name pde_ui -p 3000:3000 ${DOCKER_IMAGE}:latest
                 '''
             }
         }
@@ -81,10 +73,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ UI deployed and running under PM2"
+            echo "🎉 Build, Scan & Deployment Successful!"
         }
         failure {
-            echo "❌ Deployment failed"
+            echo "❌ Pipeline failed. Check logs!"
         }
     }
 }
