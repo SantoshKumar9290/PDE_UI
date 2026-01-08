@@ -1,3 +1,5 @@
+///<reference types="@types/google.maps" />
+
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
