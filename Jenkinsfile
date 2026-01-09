@@ -1,80 +1,59 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs "node16"
+    }
+
     environment {
-        SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_TOKEN = credentials('jenkins-token')
-        DOCKER_IMAGE = "pde_ui_app"
+        SONARQUBE = "sonarqube-server"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
+                git credentialsId: 'github-cred',
+                    url: 'https://github.com/<your-repo-path>.git',
+                    branch: 'main'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh "npm install --force"
-            }
-        }
-
-        stage('Clean previous build') {
-            steps {
-                sh "rm -rf .next"
-            }
-        }
-
-        stage('Build Next.js App') {
-            steps {
-                sh "npm run build"
+                sh 'npm install'
             }
         }
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('SonarServer') {   // <-- FIXED name
-                    sh """
-                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=PDE_UI \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
-                    """
+                withSonarQubeEnv('sonarqube-server') {
+                    sh 'sonar-scanner'
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                    docker build -t ${DOCKER_IMAGE}:latest .
-                """
+                sh 'docker build -t nodeapp:latest .'
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Stop Old Container') {
             steps {
                 sh """
-                    docker rm -f pde_ui || true
-                    docker run -d \
-                        --name pde_ui \
-                        -p 3000:3000 \
-                        ${DOCKER_IMAGE}:latest
+                    if [ \$(docker ps -q --filter name=nodeapp) ]; then
+                        docker stop nodeapp
+                        docker rm nodeapp
+                    fi
                 """
             }
         }
-    }
 
-    post {
-        success {
-            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
-        }
-        failure {
-            echo "FAILED: Check pipeline logs!"
+        stage('Run New Container') {
+            steps {
+                sh 'docker run -d -p 3000:3000 --name nodeapp nodeapp:latest'
+            }
         }
     }
 }
