@@ -5,7 +5,6 @@ pipeline {
         SONAR_HOST_URL = "http://10.10.120.20:9000"
         SONAR_TOKEN = credentials('jenkins-token')
         DOCKER_IMAGE = "pde_ui_app"
-        REGISTRY = "docker.io/library"
     }
 
     stages {
@@ -19,69 +18,63 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                npm install
-                '''
+                sh "npm install --force"
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Clean previous build') {
             steps {
-                withSonarQubeEnv('SonarServer') {
-                    sh '''
-                    sonar-scanner \
-                      -Dsonar.projectKey=PDE_UI \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=$SONAR_HOST_URL \
-                      -Dsonar.login=$SONAR_TOKEN
-                    '''
+                sh "rm -rf .next"
+            }
+        }
+
+        stage('Build Next.js App') {
+            steps {
+                sh "npm run build"
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('SonarServer') {   // <-- FIXED name
+                    sh """
+                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
+                        -Dsonar.projectKey=PDE_UI \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
+                    """
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-                docker build -t $DOCKER_IMAGE:latest .
-                docker tag $DOCKER_IMAGE:latest $REGISTRY/$DOCKER_IMAGE:latest
-                docker push $REGISTRY/$DOCKER_IMAGE:latest
-                '''
+                sh """
+                    docker build -t ${DOCKER_IMAGE}:latest .
+                """
             }
         }
 
-        stage('PM2 Deploy (Cluster Mode)') {
+        stage('Run Docker Container') {
             steps {
-                sh '''
-                pm2 delete PDE-UI || true
-
-cat <<EOF > ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: "PDE-UI",
-    script: "npm",
-    args: "start",
-    exec_mode: "cluster",
-    instances: "max",
-    watch: false
-  }]
-}
-EOF
-
-                pm2 start ecosystem.config.js
-
-                pm2 save
-                pm2 status
-                '''
+                sh """
+                    docker rm -f pde_ui || true
+                    docker run -d \
+                        --name pde_ui \
+                        -p 3000:3000 \
+                        ${DOCKER_IMAGE}:latest
+                """
             }
         }
     }
 
     post {
         success {
-            echo "SUCCESS: Sonar + Docker + PM2 Cluster Deployment Completed!"
+            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
         }
         failure {
-            echo "ERROR: Pipeline Failed!"
+            echo "FAILED: Check pipeline logs!"
         }
     }
 }
