@@ -4,6 +4,7 @@ pipeline {
     environment {
         SONAR_HOST_URL = "http://10.10.120.20:9000"
         SONAR_TOKEN = credentials('jenkins-token')
+        APP_NAME = "PDE-UI"
         DOCKER_IMAGE = "pde_ui_app"
     }
 
@@ -39,7 +40,8 @@ pipeline {
                 withSonarQubeEnv('Sonar-jenkins-token') {
                     sh """
                         /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=jenkins-token \
+                        -Dsonar.projectKey=PDE-UI \
+                        -Dsonar.projectName="PDE UI Application" \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN
@@ -56,22 +58,21 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
+        stage('PM2 Deploy (Cluster Mode)') {
             steps {
                 sh """
-                    docker rm -f pde_ui || true
-                    docker run -d \
-                        --name pde_ui \
-                        -p 3000:3000 \
-                        ${DOCKER_IMAGE}:latest
+                    pm2 delete ${APP_NAME} || true
+                    pm2 start npm --name "${APP_NAME}" -- start -i max
+                    pm2 save
                 """
             }
         }
+
     }
 
     post {
         success {
-            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
+            echo "SUCCESS: Sonar + Build + PM2 Cluster Deployment Completed!"
         }
         failure {
             echo "FAILED: Check pipeline logs!"
