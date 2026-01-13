@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_HOST_URL = "http://10.10.120.20:9000"
         SONAR_TOKEN = credentials('jenkins-token')
-        APP_NAME = "PDE_UI"     // <-- Updated as you requested
+        APP_NAME = "PDE_UI"
     }
 
     stages {
@@ -39,25 +39,27 @@ pipeline {
                 withSonarQubeEnv('Sonar-jenkins-token') {
                     sh """
                         /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=jenkins-token \
+                        -Dsonar.projectKey=PDE_UI \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
             }
         }
 
-      stage('PM2 Cluster Deployment') {
-    steps {
-        sh """
-            pm2 delete PDE-UI || true
-            pm2 delete ${APP_NAME} || true
-            pm2 start ecosystem.config.js
-            pm2 save
-        """
-    }
-}
+        stage('PM2 Cluster Deployment') {
+            steps {
+                sh """
+                    pm2 delete PDE-UI || true
+                    pm2 delete ${APP_NAME} || true
+                    pm2 start ecosystem.config.js
+                    pm2 save
+                """
+            }
+        }
+
+    }  // <-- CLOSES stages
 
     post {
         success {
@@ -67,11 +69,5 @@ pipeline {
             echo "FAILED: Check pipeline logs!"
         }
     }
- }
 
-
-
-
-
-
-
+}  // <-- CLOSES pipeline
