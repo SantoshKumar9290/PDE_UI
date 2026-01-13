@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_HOST_URL = "http://10.10.120.20:9000"
         SONAR_TOKEN = credentials('jenkins-token')
-        DOCKER_IMAGE = "pde_ui_app"
+        APP_NAME = "PDE_UI"     // <-- Updated as you requested
     }
 
     stages {
@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Clean previous build') {
+        stage('Clean Previous Build') {
             steps {
                 sh "rm -rf .next"
             }
@@ -36,46 +36,37 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('Sonar-jenkins-token') {
+                withSonarQubeEnv('SonarServer') {
                     sh """
                         /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=jenkins-token \
+                        -Dsonar.projectKey=PDE_UI \
+                        -Dsonar.projectName="PDE UI Application" \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
             }
         }
 
-        stage('Build Docker Image') {
+        stage('PM2 Cluster Deployment') {
             steps {
                 sh """
-                    docker build -t ${DOCKER_IMAGE}:latest .
+                    pm2 delete ${APP_NAME} || true
+                    pm2 start npm --name "${PDE_UI}" -- start -i max
+                    pm2 save
                 """
             }
         }
 
-        stage('Run Docker Container') {
-            steps {
-                sh """
-                    docker rm -f pde_ui || true
-                    docker run -d \
-                        --name pde_ui \
-                        -p 3000:3000 \
-                        ${DOCKER_IMAGE}:latest
-                """
-            }
-        }
     }
 
     post {
         success {
-            echo "SUCCESS: Build + Sonar + Docker Deploy Completed!"
+            echo "SUCCESS: SonarQube + Build + PM2 Cluster Deployment Completed!"
         }
         failure {
             echo "FAILED: Check pipeline logs!"
         }
     }
 }
-
