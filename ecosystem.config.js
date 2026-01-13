@@ -1,22 +1,18 @@
 module.exports = {
   apps: [
     {
-      name: "pde_frontend",
-      cwd: "/opt/apps/frontend/current",          // Working directory
-      script: "node_modules/next/dist/bin/next",  // Next.js executable
-      args: "start -p 2000",                      // Start Next.js on port 2000
-      exec_mode: "cluster",                       // Use all CPU cores
-      instances: "max",
+      name: "PDE_UI",
+      cwd: "/var/lib/jenkins/workspace/PDE-FRONTEND",   // <-- adjust if needed
+      script: "node_modules/next/dist/bin/next",
+      args: "start -p 2000",
+      instances: 2,                // <-- EXACTLY 2 INSTANCES
+      exec_mode: "cluster",
       autorestart: true,
-      max_restarts: 10,
-      watch: false,                                // Disable file watching in prod
-      max_memory_restart: "700M",                  // Auto-restart if memory exceeds limit
+      watch: false,
+      max_memory_restart: "700M",
       env: {
         NODE_ENV: "production"
-      },
-      log_date_format: "YYYY-MM-DD HH:mm:ss",
-      error_file: "/var/log/pm2/pde_frontend-error.log",
-      out_file: "/var/log/pm2/pde_frontend-out.log"
+      }
     }
   ]
 };
