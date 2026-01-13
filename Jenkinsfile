@@ -34,19 +34,20 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
-            steps {
-                withSonarQubeEnv('Sonar-jenkins-token') {
-                    sh """
-                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=jenkins-token \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
-                    """
-                }
-            }
+     stage('SonarQube Scan') {
+    steps {
+        withSonarQubeEnv('Sonar-jenkins-token') {
+            sh """
+                /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
+                -Dsonar.projectKey=pde_ui \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=${SONAR_HOST_URL} \
+                -Dsonar.login=${SONAR_TOKEN}
+            """
         }
+    }
+}
+
 
         stage('PM2 Cluster Deployment') {
             steps {
@@ -71,4 +72,5 @@ pipeline {
     }
 
 }  // <-- CLOSES pipeline
+
 
