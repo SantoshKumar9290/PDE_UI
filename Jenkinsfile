@@ -48,18 +48,17 @@ pipeline {
             }
         }
 
-        stage('PM2 Cluster Deployment') {
+       stage('PM2 Cluster Deployment') {
             steps {
                 sh """
                     pm2 delete ${APP_NAME} || true
-                    pm2 start npm --name "${PDE_UI}" -- start -i max
+                    pm2 start npm --name "${APP_NAME}" -- start -i max
                     pm2 save
                 """
             }
         }
 
     }
-
     post {
         success {
             echo "SUCCESS: SonarQube + Build + PM2 Cluster Deployment Completed!"
@@ -69,4 +68,5 @@ pipeline {
         }
     }
 }
+
 
