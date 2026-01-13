@@ -36,14 +36,13 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('SonarServer') {
+                withSonarQubeEnv('Sonar-jenkins-token') {
                     sh """
                         /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=PDE_UI \
-                        -Dsonar.projectName="PDE UI Application" \
+                        -Dsonar.projectKey=jenkins-token \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
@@ -70,3 +69,4 @@ pipeline {
         }
     }
 }
+
