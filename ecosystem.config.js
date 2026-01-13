@@ -5,7 +5,7 @@ module.exports = {
       cwd: "/var/lib/jenkins/workspace/PDE-FRONTEND",   // <-- adjust if needed
       script: "node_modules/next/dist/bin/next",
       args: "start -p 2000",
-      instances: 2,                // <-- EXACTLY 2 INSTANCES
+      instances: 2,                // <-- EXACTLY 2 
       exec_mode: "cluster",
       autorestart: true,
       watch: false,
