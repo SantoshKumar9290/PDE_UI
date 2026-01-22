@@ -16,6 +16,48 @@ pipeline {
             }
         }
 
+        /* 🔴 NEW STAGE – LAST COMMIT DEVELOPER INFO */
+        stage('Capture Last Commit Info') {
+            steps {
+                script {
+                    def commitId = sh(
+                        script: "git rev-parse HEAD",
+                        returnStdout: true
+                    ).trim()
+
+                    def author = sh(
+                        script: "git log -1 --pretty=format:'%an'",
+                        returnStdout: true
+                    ).trim()
+
+                    def email = sh(
+                        script: "git log -1 --pretty=format:'%ae'",
+                        returnStdout: true
+                    ).trim()
+
+                    def message = sh(
+                        script: "git log -1 --pretty=format:'%s'",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "=============================="
+                    echo " LAST COMMIT DETAILS"
+                    echo " Commit ID : ${commitId}"
+                    echo " Developer : ${author}"
+                    echo " Email     : ${email}"
+                    echo " Message   : ${message}"
+                    echo "=============================="
+
+                    writeFile file: 'commit-info.txt', text: """
+Commit ID : ${commitId}
+Developer : ${author}
+Email     : ${email}
+Message   : ${message}
+"""
+                }
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh "npm install --force"
@@ -34,20 +76,19 @@ pipeline {
             }
         }
 
-     stage('SonarQube Scan') {
-    steps {
-        withSonarQubeEnv('Sonar-jenkins-token') {
-            sh """
-                /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                -Dsonar.projectKey=pde_ui \
-                -Dsonar.sources=. \
-                -Dsonar.host.url=${SONAR_HOST_URL} \
-                -Dsonar.login=${SONAR_TOKEN}
-            """
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('Sonar-jenkins-token') {
+                    sh """
+                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
+                        -Dsonar.projectKey=pde_ui \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    """
+                }
+            }
         }
-    }
-}
-
 
         stage('PM2 Cluster Deployment') {
             steps {
@@ -60,17 +101,15 @@ pipeline {
             }
         }
 
-    }  // <-- CLOSES stages
+    } // stages end
 
     post {
         success {
-            echo "SUCCESS: SonarQube + Build + PM2 Cluster Deployment Completed!"
+            archiveArtifacts artifacts: 'commit-info.txt'
+            echo "SUCCESS: Build & Deploy done"
         }
         failure {
-            echo "FAILED: Check pipeline logs!"
+            echo "FAILED: Check pipeline logs"
         }
     }
-
-}  // <-- CLOSES pipeline
-
-
+}
