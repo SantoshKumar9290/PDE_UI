@@ -16,7 +16,7 @@ pipeline {
             }
         }
 
-        /* 🔴 UPDATED STAGE – COMMIT + BUILD TRIGGER INFO */
+        /* ✅ FIXED – COMMIT + BUILD TRIGGER INFO (SANDBOX SAFE) */
         stage('Capture Commit & Trigger Info') {
             steps {
                 script {
@@ -27,27 +27,22 @@ pipeline {
                     ).trim()
 
                     def author = sh(
-                        script: "git log -1 --pretty=format:'%an'",
+                        script: "git log -1 --pretty=format:%an",
                         returnStdout: true
                     ).trim()
 
                     def email = sh(
-                        script: "git log -1 --pretty=format:'%ae'",
+                        script: "git log -1 --pretty=format:%ae",
                         returnStdout: true
                     ).trim()
 
                     def message = sh(
-                        script: "git log -1 --pretty=format:'%s'",
+                        script: "git log -1 --pretty=format:%s",
                         returnStdout: true
                     ).trim()
 
-                    // ---- Jenkins Build Trigger ----
-                    def triggerUser = "SYSTEM / AUTO"
-                    def cause = currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause)
-
-                    if (cause != null) {
-                        triggerUser = cause.getUserName()
-                    }
+                    // ---- Build Trigger (SANDBOX SAFE) ----
+                    def triggerInfo = currentBuild.getBuildCauses().toString()
 
                     echo "=============================="
                     echo " DEPLOYMENT AUDIT DETAILS"
@@ -55,7 +50,7 @@ pipeline {
                     echo " Commit Author   : ${author}"
                     echo " Author Email    : ${email}"
                     echo " Commit Message  : ${message}"
-                    echo " Build Triggered : ${triggerUser}"
+                    echo " Build Trigger   : ${triggerInfo}"
                     echo "=============================="
 
                     writeFile file: 'commit-info.txt', text: """
@@ -63,7 +58,7 @@ Commit ID        : ${commitId}
 Commit Author   : ${author}
 Author Email    : ${email}
 Commit Message  : ${message}
-Build Triggered : ${triggerUser}
+Build Trigger   : ${triggerInfo}
 """
                 }
             }
