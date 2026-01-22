@@ -16,10 +16,11 @@ pipeline {
             }
         }
 
-        /* 🔴 NEW STAGE – LAST COMMIT DEVELOPER INFO */
-        stage('Capture Last Commit Info') {
+        /* 🔴 UPDATED STAGE – COMMIT + BUILD TRIGGER INFO */
+        stage('Capture Commit & Trigger Info') {
             steps {
                 script {
+                    // ---- Commit Info ----
                     def commitId = sh(
                         script: "git rev-parse HEAD",
                         returnStdout: true
@@ -40,19 +41,29 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    // ---- Jenkins Build Trigger ----
+                    def triggerUser = "SYSTEM / AUTO"
+                    def cause = currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause)
+
+                    if (cause != null) {
+                        triggerUser = cause.getUserName()
+                    }
+
                     echo "=============================="
-                    echo " LAST COMMIT DETAILS"
-                    echo " Commit ID : ${commitId}"
-                    echo " Developer : ${author}"
-                    echo " Email     : ${email}"
-                    echo " Message   : ${message}"
+                    echo " DEPLOYMENT AUDIT DETAILS"
+                    echo " Commit ID       : ${commitId}"
+                    echo " Commit Author   : ${author}"
+                    echo " Author Email    : ${email}"
+                    echo " Commit Message  : ${message}"
+                    echo " Build Triggered : ${triggerUser}"
                     echo "=============================="
 
                     writeFile file: 'commit-info.txt', text: """
-Commit ID : ${commitId}
-Developer : ${author}
-Email     : ${email}
-Message   : ${message}
+Commit ID        : ${commitId}
+Commit Author   : ${author}
+Author Email    : ${email}
+Commit Message  : ${message}
+Build Triggered : ${triggerUser}
 """
                 }
             }
@@ -100,16 +111,15 @@ Message   : ${message}
                 """
             }
         }
-
-    } // stages end
+    }
 
     post {
         success {
             archiveArtifacts artifacts: 'commit-info.txt'
-            echo "SUCCESS: Build & Deploy done"
+            echo "SUCCESS: Build & Deployment Completed"
         }
         failure {
-            echo "FAILED: Check pipeline logs"
+            echo "FAILED: Check logs"
         }
     }
 }
