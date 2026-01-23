@@ -7,15 +7,14 @@ pipeline {
         SONAR_TOKEN    = credentials('jenkins-token')
 
         // App details
-        APP_NAME   = "PDE_UI"
-        APP_SERVER = "10.10.120.189"
-        APP_PATH   = "/opt/PDE_UI"
+        APP_NAME    = "PDE_UI"
+        APP_SERVER  = "10.10.120.189"
+        APP_PATH    = "/opt/PDE_UI"
         DEPLOY_USER = "jenkins"
     }
 
     stages {
 
-        /* ---------------- CHECKOUT ---------------- */
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
@@ -23,7 +22,6 @@ pipeline {
             }
         }
 
-        /* -------- COMMIT + BUILD TRIGGER INFO ------- */
         stage('Capture Commit & Trigger Info') {
             steps {
                 script {
@@ -55,47 +53,42 @@ Build Trigger  : ${trigger}
             }
         }
 
-        /* ---------------- INSTALL ---------------- */
         stage('Install Dependencies') {
             steps {
                 sh "npm install --force"
             }
         }
 
-        /* ---------------- CLEAN ---------------- */
         stage('Clean Previous Build') {
             steps {
                 sh "rm -rf .next"
             }
         }
 
-        /* ---------------- BUILD ---------------- */
         stage('Build Next.js App') {
             steps {
                 sh "npm run build"
             }
         }
 
-        /* ---------------- SONAR ---------------- */
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('Sonar-jenkins-token') {
-                    sh """
+                    sh '''
                     /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
                     -Dsonar.projectKey=pde_ui \
                     -Dsonar.sources=. \
-                    -Dsonar.host.url=${SONAR_HOST_URL} \
-                    -Dsonar.login=${SONAR_TOKEN}
-                    """
+                    -Dsonar.host.url=$SONAR_HOST_URL \
+                    -Dsonar.token=$SONAR_TOKEN
+                    '''
                 }
             }
         }
 
-        /* ---------------- DEPLOY ---------------- */
         stage('Deploy to Application Server (10.10.120.189)') {
             steps {
                 sh """
-                echo "Deploying to Application Server ${APP_SERVER} as ${DEPLOY_USER}"
+                echo "Deploying to ${APP_SERVER} as ${DEPLOY_USER}"
 
                 rsync -avz --delete \
                   .next package.json ecosystem.config.js commit-info.txt \
@@ -103,9 +96,7 @@ Build Trigger  : ${trigger}
 
                 ssh ${DEPLOY_USER}@${APP_SERVER} << EOF
                   cd ${APP_PATH}
-                  pm2 delete PDE-UI || true
-                  pm2 delete ${APP_NAME} || true
-                  pm2 start ecosystem.config.js
+                  pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
                   pm2 save
                 EOF
                 """
@@ -116,7 +107,7 @@ Build Trigger  : ${trigger}
     post {
         success {
             archiveArtifacts artifacts: 'commit-info.txt'
-            echo "SUCCESS: Build on Jenkins + Deploy on Application Server completed"
+            echo "SUCCESS: Build + Sonar + Deploy completed"
         }
         failure {
             echo "FAILED: Check Jenkins logs"
