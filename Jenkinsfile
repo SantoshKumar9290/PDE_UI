@@ -2,10 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // SonarQube
-        SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_TOKEN    = credentials('jenkins-token')
-
         // App details
         APP_NAME    = "PDE_UI"
         APP_SERVER  = "10.10.120.189"
@@ -22,32 +18,19 @@ pipeline {
             }
         }
 
-        stage('Capture Commit & Trigger Info') {
+        stage('Capture Commit Info') {
             steps {
                 script {
                     def commitId = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
                     def author   = sh(script: "git log -1 --pretty=format:%an", returnStdout: true).trim()
                     def email    = sh(script: "git log -1 --pretty=format:%ae", returnStdout: true).trim()
                     def message  = sh(script: "git log -1 --pretty=format:%s",  returnStdout: true).trim()
-                    def trigger  = currentBuild.getBuildCauses().toString()
-
-                    echo """
-==============================
- DEPLOYMENT AUDIT DETAILS
- Commit ID      : ${commitId}
- Commit Author  : ${author}
- Author Email   : ${email}
- Commit Message : ${message}
- Build Trigger  : ${trigger}
-==============================
-"""
 
                     writeFile file: 'commit-info.txt', text: """
 Commit ID      : ${commitId}
 Commit Author  : ${author}
 Author Email   : ${email}
 Commit Message : ${message}
-Build Trigger  : ${trigger}
 """
                 }
             }
@@ -55,38 +38,38 @@ Build Trigger  : ${trigger}
 
         stage('Install Dependencies') {
             steps {
-                sh "npm install --force"
+                sh 'npm install --force'
             }
         }
 
         stage('Clean Previous Build') {
             steps {
-                sh "rm -rf .next"
+                sh 'rm -rf .next'
             }
         }
 
         stage('Build Next.js App') {
             steps {
-                sh "npm run build"
+                sh 'npm run build'
             }
         }
 
         stage('SonarQube Scan') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh '''
-            sonar-scanner \
-              -Dsonar.projectKey=PED_UI \
-              -Dsonar.sources=.
-            '''
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=PED_UI \
+                      -Dsonar.sources=.
+                    '''
+                }
+            }
         }
-    }
-}
 
-        stage('Deploy to Application Server (10.10.120.189)') {
+        stage('Deploy to Application Server') {
             steps {
                 sh """
-                echo "Deploying to ${APP_SERVER} as ${DEPLOY_USER}"
+                echo "Deploying to ${APP_SERVER}"
 
                 rsync -avz --delete \
                   .next package.json ecosystem.config.js commit-info.txt \
@@ -105,12 +88,10 @@ Build Trigger  : ${trigger}
     post {
         success {
             archiveArtifacts artifacts: 'commit-info.txt'
-            echo "SUCCESS: Build + Sonar + Deploy completed"
+            echo "✅ SUCCESS: Build + Sonar + Deploy completed"
         }
         failure {
-            echo "FAILED: Check Jenkins logs"
+            echo "❌ FAILED: Check Jenkins logs"
         }
     }
 }
-
-
