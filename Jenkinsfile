@@ -56,10 +56,16 @@ Build Trigger   : ${triggerInfo}
             }
         }
 
-        stage('SonarQube Scan') {
+         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('Sonar-jenkins-token') {
-                    sh 'sonar-scanner'
+                    sh """
+                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
+                        -Dsonar.projectKey=PDE_UI \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
@@ -86,3 +92,4 @@ Build Trigger   : ${triggerInfo}
         }
     }
 }
+
