@@ -72,18 +72,16 @@ Build Trigger  : ${trigger}
         }
 
         stage('SonarQube Scan') {
-            steps {
-                withSonarQubeEnv('Sonar-jenkins-token') {
-                    sh '''
-                    /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                    -Dsonar.projectKey=PDE_UI \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=$SONAR_HOST_URL \
-                    -Dsonar.token=$SONAR_TOKEN
-                    '''
-                }
-            }
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+            sonar-scanner \
+              -Dsonar.projectKey=PED_UI \
+              -Dsonar.sources=.
+            '''
         }
+    }
+}
 
         stage('Deploy to Application Server (10.10.120.189)') {
             steps {
@@ -114,4 +112,5 @@ Build Trigger  : ${trigger}
         }
     }
 }
+
 
