@@ -66,18 +66,26 @@ Commit Message: ${message}
             }
         }
 
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Deploy to Application Server') {
             steps {
                 sh """
-                echo "Deploying to ${APP_SERVER}"
-
                 rsync -avz --delete \
                   .next package.json ecosystem.config.js commit-info.txt \
                   ${DEPLOY_USER}@${APP_SERVER}:${APP_PATH}/
 
                 ssh ${DEPLOY_USER}@${APP_SERVER} << EOF
                   cd ${APP_PATH}
-                  pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
+                  pm2 describe PDE_UI > /dev/null \
+                    && pm2 reload ecosystem.config.js \
+                    || pm2 start ecosystem.config.js
                   pm2 save
                 EOF
                 """
