@@ -56,19 +56,18 @@ Build Trigger   : ${triggerInfo}
             }
         }
 
-         stage('SonarQube Scan') {
-            steps {
-                withSonarQubeEnv('Sonarqube') {
-                    sh """
-                        /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                        -Dsonar.projectKey=PDE_UI \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
-                    """
-                }
-            }
+        stage('SonarQube Scan') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+                /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
+                -Dsonar.projectKey=PDE_UI \
+                -Dsonar.sources=.
+            '''
         }
+    }
+}
+
 
         stage('PM2 Cluster Deployment') {
             steps {
@@ -92,6 +91,7 @@ Build Trigger   : ${triggerInfo}
         }
     }
 }
+
 
 
 
