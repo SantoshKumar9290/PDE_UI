@@ -76,7 +76,7 @@ Build Trigger  : ${trigger}
                 withSonarQubeEnv('Sonar-jenkins-token') {
                     sh '''
                     /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                    -Dsonar.projectKey=pde_ui \
+                    -Dsonar.projectKey=PDE_UI \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=$SONAR_HOST_URL \
                     -Dsonar.token=$SONAR_TOKEN
@@ -114,3 +114,4 @@ Build Trigger  : ${trigger}
         }
     }
 }
+
