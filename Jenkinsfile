@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // App details
         APP_NAME    = "PDE_UI"
         APP_SERVER  = "10.10.120.189"
         APP_PATH    = "/opt/PDE_UI"
@@ -23,14 +22,12 @@ pipeline {
                 script {
                     def commitId = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
                     def author   = sh(script: "git log -1 --pretty=format:%an", returnStdout: true).trim()
-                    def email    = sh(script: "git log -1 --pretty=format:%ae", returnStdout: true).trim()
-                    def message  = sh(script: "git log -1 --pretty=format:%s",  returnStdout: true).trim()
+                    def message  = sh(script: "git log -1 --pretty=format:%s", returnStdout: true).trim()
 
                     writeFile file: 'commit-info.txt', text: """
-Commit ID      : ${commitId}
-Commit Author  : ${author}
-Author Email   : ${email}
-Commit Message : ${message}
+Commit ID     : ${commitId}
+Commit Author : ${author}
+Commit Message: ${message}
 """
                 }
             }
@@ -57,11 +54,14 @@ Commit Message : ${message}
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                    sonar-scanner \
-                      -Dsonar.projectKey=PED_UI \
-                      -Dsonar.sources=.
-                    '''
+                    script {
+                        def scannerHome = tool 'sonar-scanner'
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                          -Dsonar.projectKey=PED_UI \
+                          -Dsonar.sources=.
+                        """
+                    }
                 }
             }
         }
@@ -88,7 +88,7 @@ Commit Message : ${message}
     post {
         success {
             archiveArtifacts artifacts: 'commit-info.txt'
-            echo "✅ SUCCESS: Build + Sonar + Deploy completed"
+            echo "✅ SUCCESS: Build + SonarQube + Deploy completed"
         }
         failure {
             echo "❌ FAILED: Check Jenkins logs"
