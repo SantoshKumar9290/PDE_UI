@@ -58,7 +58,7 @@ Build Trigger   : ${triggerInfo}
 
          stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('Sonar-jenkins-token') {
+                withSonarQubeEnv('Sonarqube') {
                     sh """
                         /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
                         -Dsonar.projectKey=PDE_UI \
@@ -92,5 +92,6 @@ Build Trigger   : ${triggerInfo}
         }
     }
 }
+
 
 
