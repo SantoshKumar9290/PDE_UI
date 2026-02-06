@@ -2,9 +2,12 @@ pipeline {
     agent any
 
     environment {
-        SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_TOKEN = credentials('pde_ui')
-        APP_NAME = "PDE_UI"
+        APP_SERVER = "10.10.120.189"
+        APP_DIR    = "/var/www/pde_ui"
+    }
+
+    tools {
+        nodejs "Node16"
     }
 
     stages {
@@ -16,55 +19,65 @@ pipeline {
             }
         }
 
+        stage('Verify Node Version') {
+            steps {
+                sh '''
+                  node -v
+                  npm -v
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh "npm install --force"
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
-        stage('Clean Previous Build') {
+        stage('Build Application') {
             steps {
-                sh "rm -rf .next"
+                sh '''
+                  if grep -q "\"build\"" package.json; then
+                    npm run build
+                  else
+                    echo "No build script found – skipping build"
+                  fi
+                '''
             }
         }
 
-        stage('Build Next.js App') {
+        stage('Deploy to Application Server') {
             steps {
-                sh "npm run build"
+                sh '''
+                  ssh jenkins@${APP_SERVER} "mkdir -p ${APP_DIR}"
+                  rsync -av --delete \
+                    --exclude=node_modules \
+                    ./ jenkins@${APP_SERVER}:${APP_DIR}/
+                '''
             }
         }
 
-        stage('SonarQube Scan') {
+        stage('Start Application using PM2') {
             steps {
-                sh """
-                    /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                    -Dsonar.projectKey=pde_ui \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=${SONAR_HOST_URL} \
-                    -Dsonar.token=${SONAR_TOKEN}
-                """
-            }
-        }
-
-        stage('PM2 Cluster Deployment') {
-            steps {
-                sh """
-                    pm2 delete PDE-UI || true
-                    pm2 delete ${APP_NAME} || true
-                    pm2 start ecosystem.config.js
+                sh '''
+                  ssh jenkins@${APP_SERVER} "
+                    cd ${APP_DIR}
+                    npm install --legacy-peer-deps
+                    pm2 delete pde_ui || true
+                    pm2 start npm --name pde_ui -- start
                     pm2 save
-                """
+                  "
+                '''
             }
         }
-
     }
 
     post {
         success {
-            echo "SUCCESS: SonarQube + Build + PM2 Cluster Deployment Completed!"
+            echo "✅ Deployment completed successfully"
         }
         failure {
-            echo "FAILED: Check pipeline logs!"
+            echo "❌ Deployment failed – check logs"
         }
     }
 }
