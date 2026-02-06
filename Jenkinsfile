@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     environment {
-        SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_TOKEN = credentials('jenkins-token')
-        APP_NAME = "pde_ui"
+        SONAR_HOST_URL = 'http://10.10.120.190:9000'
+        SONAR_TOKEN = credentials('sonar-token')
+        APP_NAME = 'pde_ui'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/your-repo.git'
             }
         }
 
@@ -21,20 +21,30 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                sh 'npm run build || true'
-            }
-        }
-
         stage('SonarQube Scan') {
             steps {
                 sh """
                 sonar-scanner \
-                  -Dsonar.projectKey=$APP_NAME \
+                  -Dsonar.projectKey=PDE_UI-SONAR \
                   -Dsonar.sources=. \
-                  -Dsonar.host.url=$SONAR_HOST_URL \
-                  -Dsonar.token=$SONAR_TOKEN
+                  -Dsonar.host.url=${SONAR_HOST_URL} \
+                  -Dsonar.login=${SONAR_TOKEN}
+                """
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Deploy with PM2 Cluster') {
+            steps {
+                sh """
+                pm2 delete ${APP_NAME} || true
+                pm2 start npm --name "${APP_NAME}" -i max -- start
+                pm2 save
                 """
             }
         }
@@ -42,10 +52,10 @@ pipeline {
 
     post {
         success {
-            echo "Build & Sonar scan completed successfully"
+            echo 'Deployment successful'
         }
         failure {
-            echo "FAILED: Check logs"
+            echo 'Deployment failed'
         }
     }
 }
