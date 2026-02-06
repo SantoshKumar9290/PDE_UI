@@ -19,21 +19,20 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Verify Node Version') {
             steps {
-                sh 'npm install'
+                sh '''
+                  echo "Node Version:"
+                  node -v
+                  echo "NPM Version:"
+                  npm -v
+                '''
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Install Dependencies') {
             steps {
-                sh '''
-                  npx sonar-scanner \
-                    -Dsonar.projectKey=pde_ui \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://10.10.120.20:9000 \
-                    -Dsonar.token=sqp_abc57ecbb8de50c0399ed8f26091028e306baa8d
-                '''
+                sh 'npm install'
             }
         }
 
@@ -43,7 +42,7 @@ pipeline {
                   if grep -q "\"build\"" package.json; then
                     npm run build
                   else
-                    echo "No build script found – skipping"
+                    echo "No build script found – skipping build"
                   fi
                 '''
             }
@@ -71,6 +70,15 @@ pipeline {
                   "
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deployment completed successfully"
+        }
+        failure {
+            echo "❌ Deployment failed – check logs"
         }
     }
 }
