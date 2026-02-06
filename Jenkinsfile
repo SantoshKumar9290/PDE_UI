@@ -22,9 +22,7 @@ pipeline {
         stage('Verify Node Version') {
             steps {
                 sh '''
-                  echo "Node Version:"
                   node -v
-                  echo "NPM Version:"
                   npm -v
                 '''
             }
@@ -32,7 +30,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
@@ -64,6 +62,7 @@ pipeline {
                 sh '''
                   ssh jenkins@${APP_SERVER} "
                     cd ${APP_DIR}
+                    npm install --legacy-peer-deps
                     pm2 delete pde_ui || true
                     pm2 start npm --name pde_ui -- start
                     pm2 save
