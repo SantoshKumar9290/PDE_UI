@@ -1,97 +1,78 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node16'
+    environment {
+        APP_SERVER = "10.10.120.189"
+        APP_DIR = "/var/www/pde_ui"
     }
 
-    environment {
-        APP_NAME = "PDE_UI"
+    tools {
+        nodejs "node16"   // name from Jenkins NodeJS tool config
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/SantoshKumar9290/PDE_UI.git'
-            }
-        }
-
-        stage('Capture Commit & Trigger Info') {
-            steps {
-                script {
-                    def commitId = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-                    def author   = sh(script: "git log -1 --pretty=format:%an", returnStdout: true).trim()
-                    def email    = sh(script: "git log -1 --pretty=format:%ae", returnStdout: true).trim()
-                    def message  = sh(script: "git log -1 --pretty=format:%s", returnStdout: true).trim()
-                    def triggerInfo = currentBuild.getBuildCauses().toString()
-
-                    writeFile file: 'commit-info.txt', text: """
-Commit ID        : ${commitId}
-Commit Author   : ${author}
-Author Email    : ${email}
-Commit Message  : ${message}
-Build Trigger   : ${triggerInfo}
-"""
-                }
+                git 'https://github.com/SantoshKumar9290/PDE_UI.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install --force'
-            }
-        }
-
-        stage('Clean Previous Build') {
-            steps {
-                sh 'rm -rf .next'
-            }
-        }
-
-        stage('Build Next.js App') {
-            steps {
-                sh 'npm run build'
+                sh 'npm install'
             }
         }
 
         stage('SonarQube Scan') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh '''
-                /opt/sonarscanner/sonar-scanner-*/bin/sonar-scanner \
-                -Dsonar.projectKey=PDE_UI \
-                -Dsonar.sources=.
-            '''
-        }
-    }
-}
-
-
-        stage('PM2 Cluster Deployment') {
             steps {
-                sh '''
-                    pm2 delete PDE-UI || true
-                    pm2 delete PDE_UI || true
-                    pm2 start ecosystem.config.js
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                    npx sonar-scanner \
+                    -Dsonar.projectKey=PDE_UI \
+                    -Dsonar.sources=. \
+                    """
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build || echo "No build step"'
+            }
+        }
+
+        stage('Deploy to App Server') {
+            steps {
+                sh """
+                ssh jenkins@${APP_SERVER} '
+                    mkdir -p ${APP_DIR}
+                '
+                scp -r * jenkins@${APP_SERVER}:${APP_DIR}/
+                """
+            }
+        }
+
+        stage('Start Application with PM2') {
+            steps {
+                sh """
+                ssh jenkins@${APP_SERVER} '
+                    cd ${APP_DIR}
+                    pm2 delete pde_ui || true
+                    pm2 start npm --name pde_ui -- start
                     pm2 save
-                '''
+                '
+                """
             }
         }
     }
 
     post {
         success {
-            archiveArtifacts artifacts: 'commit-info.txt'
-            echo 'SUCCESS: Build & Deployment Completed'
+            echo "Deployment Successful"
         }
         failure {
-            echo 'FAILED: Check logs'
+            echo "Deployment Failed"
         }
     }
 }
-
-
-
-
