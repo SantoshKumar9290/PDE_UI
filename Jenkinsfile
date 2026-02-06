@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONAR_HOST_URL = "http://10.10.120.20:9000"
-        SONAR_TOKEN = credentials('jenkins-token')
+        SONAR_TOKEN = credentials('pde_ui')
         APP_NAME = "PDE_UI"
     }
 
@@ -56,6 +56,7 @@ pipeline {
                 """
             }
         }
+
     }
 
     post {
